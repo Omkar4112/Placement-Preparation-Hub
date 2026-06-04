@@ -881,11 +881,11 @@ String type = switch(day) {
 <div class="code-header"><button class="copy-btn" onclick="copyCode(this)">Copy</button></div><pre><code class="language-mermaid">graph TD
     A[Heap Memory] --&gt; B[String Constant Pool]
     A --&gt; C[Regular Heap Objects]
-    B --&gt; D[&quot;Hello&quot; - shared]
+    B --&gt; D[&quot;&amp;quot;Hello&amp;quot; - shared&quot;]
     C --&gt; E[&quot;new String - separate object&quot;]
-    F[s1 = &quot;Hello&quot;] --&gt; D
-    G[s2 = &quot;Hello&quot;] --&gt; D
-    H[&quot;s3 = new String(Hello)&quot;] --&gt; E
+    F[&quot;s1 = &amp;quot;Hello&amp;quot;&quot;] --&gt; D
+    G[&quot;s2 = &amp;quot;Hello&amp;quot;&quot;] --&gt; D
+    H[&quot;s3 = new String(&amp;quot;Hello&amp;quot;)&quot;] --&gt; E
     E -.-&gt;|intern| D
 </code></pre>
 <h3 id="5-syntax_6">5. Syntax</h3>

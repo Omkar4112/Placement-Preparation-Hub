@@ -727,11 +727,11 @@ When you write `String s = "Hello";`, the JVM checks the String Pool. If `"Hello
 graph TD
     A[Heap Memory] --> B[String Constant Pool]
     A --> C[Regular Heap Objects]
-    B --> D["Hello" - shared]
+    B --> D["&quot;Hello&quot; - shared"]
     C --> E["new String - separate object"]
-    F[s1 = "Hello"] --> D
-    G[s2 = "Hello"] --> D
-    H["s3 = new String(Hello)"] --> E
+    F["s1 = &quot;Hello&quot;"] --> D
+    G["s2 = &quot;Hello&quot;"] --> D
+    H["s3 = new String(&quot;Hello&quot;)"] --> E
     E -.->|intern| D
 ```
 
