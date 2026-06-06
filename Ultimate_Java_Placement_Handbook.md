@@ -2028,7 +2028,811 @@ class Employee {
 - Composition = Strong HAS-A (lifecycle dependent). Aggregation = Weak HAS-A (independent).
 - `equals()` ↔ `hashCode()` contract: Equal objects MUST have equal hash codes.
 
+---
 
+## 5.6 The static Keyword, Initialization Blocks, and Execution Flow
+
+### 1. Definition
+- **static Keyword**: A modifier in Java used to declare fields, methods, blocks, or nested classes that belong to the class itself, rather than to instances of the class.
+- **Static Initializer Block (SIB)**: A block of code prefixed with `static` inside a class. It runs once when the class is loaded by the JVM ClassLoader.
+- **Instance Initializer Block (IIB)**: A block of code inside a class (without any keywords) that runs for every instance creation, immediately after the call to the parent constructor (`super()`) and before the child constructor body.
+
+### 2. Why It Exists
+- **static**: Enables sharing of common data (static variables) and logic (static methods) across all instances, saving memory and providing global access. It is used to write utility methods (like `Math.pow()`).
+- **SIBs**: Enable complex, exception-prone initialization of static fields that cannot be done with inline declarations.
+- **IIBs**: Allow sharing initialization logic across multiple overloaded constructors without repeating code.
+
+### 3. Internal Working
+1. **Class Loading**: When a class is referenced (e.g., executing `main`, instantiating, or reading a static field), the JVM ClassLoader loads the `.class` bytecode. The JVM allocates space in the **Method Area** (Metaspace) for class structures. It executes static fields and SIBs in the order they appear.
+2. **Object Creation**: When `new` is called, the JVM allocates heap space for instance variables. It invokes the constructor, which first chains to the parent constructor (`super()`). After `super()` completes, the JVM copies the IIB bytecode into the constructor and executes it. Only then does the constructor's actual code execute.
+
+### 4. Architecture
+The strict execution hierarchy during class loading and instantiation is:
+
+```mermaid
+flowchart TD
+    Start[Object Creation Triggered] --> S1[1. Parent static variables initialized & SIBs run in order]
+    S1 --> S2[2. Child static variables initialized & SIBs run in order]
+    S2 --> I1[3. Parent instance variables initialized & IIBs run in order]
+    I1 --> I2[4. Parent constructor body runs]
+    I2 --> I3[5. Child instance variables initialized & IIBs run in order]
+    I3 --> I4[6. Child constructor body runs]
+    I4 --> End[Object Ready]
+```
+
+### 5. Syntax
+```java
+class ExecutionDemo {
+    // Static Variable
+    static int staticCounter = 0;
+    
+    // Instance Variable
+    int instanceId;
+    
+    // Static Initializer Block (SIB)
+    static {
+        staticCounter = 100;
+        System.out.println("Static block executed");
+    }
+    
+    // Instance Initializer Block (IIB)
+    {
+        instanceId = ++staticCounter;
+        System.out.println("Instance block executed");
+    }
+    
+    // Constructor
+    ExecutionDemo() {
+        System.out.println("Constructor executed");
+    }
+}
+```
+
+### 6. Example
+```java
+class Parent {
+    static { System.out.println("Parent SIB"); }
+    { System.out.println("Parent IIB"); }
+    Parent() { System.out.println("Parent Constructor"); }
+}
+
+class Child extends Parent {
+    static { System.out.println("Child SIB"); }
+    { System.out.println("Child IIB"); }
+    Child() {
+        super(); // Implicit or Explicit
+        System.out.println("Child Constructor");
+    }
+}
+
+public class Main {
+    public static void main(String[] args) {
+        System.out.println("--- Loading Class & Creating Object 1 ---");
+        Child c1 = new Child();
+        System.out.println("--- Creating Object 2 ---");
+        Child c2 = new Child();
+    }
+}
+```
+
+### 7. Dry Run
+1. `java Main` runs. The JVM loads the `Child` class, which triggers loading of the `Parent` class.
+2. `Parent SIB` executes first (Parent class loaded).
+3. `Child SIB` executes next (Child class loaded).
+4. `main()` prints "--- Loading Class & Creating Object 1 ---".
+5. `new Child()` starts:
+   - Chains to `Parent` constructor.
+   - `Parent IIB` executes.
+   - `Parent Constructor` prints.
+   - Chains back to `Child`.
+   - `Child IIB` executes.
+   - `Child Constructor` prints.
+6. `main()` prints "--- Creating Object 2 ---".
+7. `new Child()` runs again. Static blocks do NOT run because the classes are already loaded.
+   - `Parent IIB` runs.
+   - `Parent Constructor` runs.
+   - `Child IIB` runs.
+   - `Child Constructor` runs.
+
+### 8. Real World Example
+- **System Properties**: A web server class uses an SIB to load configuration keys from a `.properties` file into static variables before the server starts.
+- **Database Driver Loading**: `Class.forName("com.mysql.cj.jdbc.Driver")` executes the Driver class's static block to register itself with the `DriverManager`.
+
+### 9. Advantages
+- **Memory efficiency**: Sharing variables (like a constant database URL) saves duplicate Heap allocations.
+- **Robust initialization**: SIBs allow catching checked exceptions during class loading.
+- **DRY Constructors**: IIBs isolate common instance setup logic, avoiding constructor duplication.
+
+### 10. Disadvantages
+- **Testing rigidity**: Static state functions as global state, making independent unit testing and mocking of static methods difficult.
+- **Memory retention**: Static variables are rooted at the ClassLoader level and are not garbage collected until the ClassLoader is unloaded, leading to memory leaks if large objects are kept static.
+
+### 11. Interview Questions
+> [!NOTE]
+> **Q1: Can we access non-static variables inside a static method?**
+> A: No. Static methods belong to the class and are executed without any object context. They do not have a `this` reference, so they cannot resolve instance variables unless you pass an object reference explicitly.
+>
+> **Q2: Why is the main method static?**
+> A: So that the JVM can call `Main.main()` directly without instantiating the class. If it were non-static, the JVM wouldn't know how to call the constructor (which might have parameters).
+>
+> **Q3: What is method hiding?**
+> A: If a child class defines a static method with the exact same signature as a static method in the parent class, the child's method hides the parent's method. It is resolved at compile time based on reference type (static binding), not dynamic dispatch.
+
+### 12. Common Mistakes
+> [!CAUTION]
+> - Referencing `this` or `super` inside a static context. It throws a compiler error because no instance exists.
+> - Forgetting that an exception in an SIB throws `ExceptionInInitializerError` at runtime, crashing the JVM immediately. Wrap complex SIB logic in `try-catch`.
+
+### 13. Best Practices
+> [!TIP]
+> Make all static fields immutable (`static final`) whenever possible to prevent thread safety issues since static fields are shared across all threads.
+
+### 14. FAQs
+- **Can we write a class with only static blocks and run it without a main method?** In older Java versions (prior to Java 7), this was possible. In Java 7+, the JVM explicitly checks for the `main` method before executing anything, throwing a `NoSuchMethodError`.
+- **Can static methods be overloaded?** Yes, static methods can be overloaded just like normal methods.
+
+### 15. Revision Notes
+- **SIBs**: Run once when class is loaded.
+- **IIBs**: Run per instance, after `super()`, before constructor.
+- **Execution Order**: Parent Static -> Child Static -> Parent Instance -> Parent Constructor -> Child Instance -> Child Constructor.
+
+---
+
+## 5.7 The final Keyword, Blank Finals, and Immutability
+
+### 1. Definition
+- **final Keyword**: A modifier in Java used to declare constants and restrict subclassing or overriding.
+  - **final variable**: Cannot be reassigned once initialized.
+  - **final method**: Cannot be overridden by subclasses.
+  - **final class**: Cannot be inherited/extended.
+- **Blank Final**: A final instance variable declared without an initial value. It must be initialized in every constructor of the class.
+- **Static Blank Final**: A final static variable declared without an initial value. It must be initialized in a static block.
+- **Immutability**: A design pattern where an object's state cannot be modified after it is constructed.
+
+### 2. Why It Exists
+- **Security & Consistency**: Immutability ensures fields (like passwords, credentials, bank account rates) cannot be tampered with once created.
+- **Performance**: Final constants are optimized at compile time (constant folding) and are cached directly in the runtime stack.
+- **Thread Safety**: Immutable objects are inherently thread-safe because their state cannot change, eliminating synchronization overhead.
+
+### 3. Internal Working
+- The Java compiler enforces that variables marked `final` cannot have their reference or value modified after the initial assignment.
+- Under the hood, the JIT compiler uses final fields to skip read-barriers. The JVM guarantees that when an object is constructed, all final fields are fully initialized and visible to other threads without explicit synchronization.
+
+### 4. Architecture
+To design a completely **Immutable Class** in Java, you must follow five strict architectural rules:
+
+```mermaid
+graph TD
+    A[Immutable Class Architecture] --> B[1. Make the class final]
+    A --> C[2. Make all fields private and final]
+    A --> D[3. Provide no setter methods]
+    A --> E[4. Initialize all fields via constructor]
+    A --> F[5. Use Defensive Copying in Constructor and Getters]
+```
+
+### 5. Syntax
+```java
+// Immutable class template
+public final class ImmutableUser {
+    private final String name;
+    private final List<String> roles; // Mutable collection!
+
+    public ImmutableUser(String name, List<String> roles) {
+        this.name = name;
+        // Defensive copy to block modification from outside
+        this.roles = new ArrayList<>(roles); 
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public List<String> getRoles() {
+        // Return defensive copy so caller cannot modify internal list
+        return new ArrayList<>(roles);
+    }
+}
+```
+
+### 6. Example
+```java
+import java.util.*;
+
+public final class ImmutableEmployee {
+    private final String name;
+    private final Date joiningDate; // Mutable object!
+
+    public ImmutableEmployee(String name, Date joiningDate) {
+        this.name = name;
+        // Defensive copying
+        this.joiningDate = new Date(joiningDate.getTime());
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public Date getJoiningDate() {
+        // Defensive copying on getter
+        return new Date(joiningDate.getTime());
+    }
+
+    @Override
+    public String toString() {
+        return name + " joined on " + joiningDate;
+    }
+}
+```
+
+### 7. Dry Run
+1. `Date myDate = new Date();` -> Heap allocates Date object `D1` representing today.
+2. `ImmutableEmployee emp = new ImmutableEmployee("Omkar", myDate);`
+3. Inside constructor: `new Date(D1.getTime())` creates a distinct Date object `D2` on the Heap. The field `joiningDate` points to `D2`.
+4. `myDate.setTime(0);` (modifying the original date object to 1970).
+5. If we print `emp`, it still displays today's date because it reads from `D2` (which was unaffected by modifying `D1`). This is constructor defensive copying.
+6. `Date gotDate = emp.getJoiningDate();` -> Returns a fresh Date object `D3` pointing to the same epoch as `D2`.
+7. `gotDate.setTime(0);` -> Modifies `D3`. The employee's internal `D2` remains untouched. This is getter defensive copying.
+
+### 8. Real World Example
+- **String Class**: `java.lang.String` is completely final and immutable, preventing external libraries from modifying database query strings or connection URLs at runtime.
+- **HashMap Keys**: Using immutable objects (like String or Integer) as keys in HashMaps prevents key mutation, preserving stable hash codes.
+
+### 9. Advantages
+- **Inherently thread-safe**: Zero synchronization locks required.
+- **Key stability**: Ideal for `HashMap` keys and `HashSet` elements.
+- **Shareable**: Can be shared across subsystems without cloning.
+
+### 10. Disadvantages
+- **High allocation overhead**: Every update to an immutable object requires instantiating a new object (e.g., concatenating strings in loops). This is mitigated by helper builders like `StringBuilder`.
+
+### 11. Interview Questions
+> [!NOTE]
+> **Q1: Can a final variable reference refer to a mutable object?**
+> A: Yes. Marking a reference as final (`final List<String> list = new ArrayList<>();`) means you cannot reassign `list` to point to a different list. However, you can still add, remove, or modify elements inside that list.
+>
+> **Q2: Difference between a blank final and a normal final variable?**
+> A: A normal final variable is assigned a value at declaration. A blank final is declared without a value and must be initialized in the constructor. If not initialized in the constructor, the compiler throws an error.
+>
+> **Q3: What is the difference between `final`, `finally`, and `finalize`?**
+> A: 
+> - `final`: A keyword modifier for variables (constants), methods (no overriding), and classes (no subclassing).
+> - `finally`: An exception-handling block that always executes when the try-catch block exits.
+> - `finalize()`: A deprecated method in the `Object` class called by the Garbage Collector before reclaiming memory.
+
+### 12. Common Mistakes
+> [!CAUTION]
+> - Assuming that making a collection field `final` makes it immutable. It only prevents reassignment. You must wrap it in `Collections.unmodifiableList()` or perform defensive copying to make the collection contents secure.
+
+### 13. Best Practices
+> [!TIP]
+> When designing custom immutable classes, always perform defensive copies of mutable objects (like `Date`, `Calendar`, lists, custom objects) in both constructors and getter methods.
+
+### 14. FAQs
+- **Can a constructor be final?** No, constructors cannot be final because they are never inherited, so overriding is not applicable.
+- **Are Java Records immutable?** Yes, Java Records are implicitly final, and all fields are implicitly private and final.
+
+### 15. Revision Notes
+- **final**: variables cannot be reassigned; methods cannot be overridden; classes cannot be inherited.
+- **Immutability rules**: final class, private final fields, no setters, defensive copy input/output.
+
+---
+
+## 5.8 Deep Copy vs Shallow Copy, Object Cloning, and Copy Constructors
+
+### 1. Definition
+- **Reference Copy**: Creating a new reference variable pointing to the exact same memory address as the source object.
+- **Shallow Copy**: Creating a new object and copying all field values. If fields refer to other objects, only the references to those nested objects are copied.
+- **Deep Copy**: Creating a new object and recursively copying all nested objects, resulting in two completely isolated object graphs.
+- **Object Cloning**: Creating a duplicate object using the `Object.clone()` method.
+- **Copy Constructor**: A constructor that accepts an instance of its own class as a parameter and initializes a new object copy.
+
+### 2. Why It Exists
+- In multi-threaded or complex systems, sharing objects can lead to accidental mutations (side-effects). If Thread A modifies a shared object, Thread B might crash. Object copying isolates data states.
+- Deep copying is required when objects hold collections or nested structures that must be modified independently of the source.
+
+### 3. Internal Working
+- **Object.clone()**: Declared in `Object` as `protected native Object clone()`. It performs a bitwise shallow copy of fields. If your class does not implement the `Cloneable` marker interface, calling `clone()` throws `CloneNotSupportedException`.
+- **Copy Constructor**: Calls standard constructors normally, executing user-defined deep copying instructions step by step.
+
+### 4. Architecture
+| Attribute | Reference Copy | Shallow Copy | Deep Copy |
+| :--- | :--- | :--- | :--- |
+| **Object Address** | Same | Different | Different |
+| **Nested Object Address** | Same | Same | Different |
+| **Isolation Level** | Zero | Partial (Mutating child affects source) | Complete |
+| **Performance** | Extremely Fast | Fast | Slower (recursive heap writes) |
+
+### 5. Syntax
+```java
+// Overriding clone() for Deep Copy
+class Student implements Cloneable {
+    Address address; // Nested object
+    
+    @Override
+    protected Object clone() throws CloneNotSupportedException {
+        // 1. Get shallow copy
+        Student cloned = (Student) super.clone();
+        // 2. Explicitly clone nested mutable objects
+        cloned.address = (Address) this.address.clone();
+        return cloned;
+    }
+}
+
+// Copy Constructor pattern (Recommended)
+class Student {
+    Address address;
+    
+    // Copy Constructor
+    public Student(Student source) {
+        this.name = source.name;
+        // Deep copy nested object
+        this.address = new Address(source.address); 
+    }
+}
+```
+
+### 6. Example
+```java
+class Course {
+    String name;
+    Course(String name) { this.name = name; }
+    // Copy constructor for nested object
+    Course(Course source) { this.name = source.name; }
+}
+
+class Candidate implements Cloneable {
+    String name;
+    Course course;
+
+    Candidate(String name, Course course) {
+        this.name = name;
+        this.course = course;
+    }
+
+    // Copy Constructor
+    Candidate(Candidate source) {
+        this.name = source.name;
+        // Deep copy
+        this.course = new Course(source.course);
+    }
+
+    // clone() implementation
+    @Override
+    protected Object clone() throws CloneNotSupportedException {
+        Candidate cloned = (Candidate) super.clone(); // Shallow copy
+        cloned.course = new Course(this.course.name); // Make it deep
+        return cloned;
+    }
+}
+```
+
+### 7. Dry Run
+1. `Course c = new Course("Java");` -> `c` points to Course object on Heap.
+2. `Candidate original = new Candidate("Omkar", c);` -> `original` has reference to `c`.
+3. **Copy Constructor**: `Candidate copy = new Candidate(original);`
+   - Allocates new `Candidate` object.
+   - Copies `name` String.
+   - Instantiates a `new Course(original.course)` -> creates a new Course object containing "Java".
+   - `original.course` and `copy.course` point to different memory locations.
+   - Mutating `copy.course.name = "Python"` leaves `original.course.name` as "Java".
+
+### 8. Real World Example
+- **Mailing Systems**: Drafting an email template. When you choose "Use Template", the system makes a copy of the template. You can modify the body of your email without altering the master template.
+
+### 9. Advantages
+- **Deep Copy**: Complete isolation, avoiding concurrency bugs and state pollution.
+- **Copy Constructor**: Superior to `clone()` because it handles `final` fields, returns the correct type without casting, doesn't require marker interfaces, and avoids throwing checked exceptions.
+
+### 10. Disadvantages
+- **Cloneable Flaws**: The standard Java cloning mechanism is widely considered broken. It bypasses constructor calls, returns `Object` instead of the typed class, and forces catching checked `CloneNotSupportedException`.
+- **Deep Copy Overhead**: Performance is significantly slower when copying heavily nested structures due to recursive memory allocations.
+
+### 11. Interview Questions
+> [!NOTE]
+> **Q1: Why is Cloneable a marker interface?**
+> A: It contains no fields or methods. It simply signals to the JVM's `Object.clone()` method that it is safe to perform a field-by-field copy of instances of that class.
+>
+> **Q2: How does serialization perform a deep copy?**
+> A: By serializing the object graph to an `ObjectOutputStream` into a byte stream, and then deserializing it using `ObjectInputStream`. The reconstructed object is a completely deep-copied instance.
+>
+> **Q3: What happens if you call clone() without implementing Cloneable?**
+> A: It throws a checked `CloneNotSupportedException` at runtime.
+
+### 12. Common Mistakes
+> [!CAUTION]
+> - Implementing `clone()` by only writing `return super.clone();` and assuming it performs a deep copy. It only copies references for nested objects (shallow copy). You must manually clone nested references.
+
+### 13. Best Practices
+> [!TIP]
+> Avoid using the `Cloneable` interface and `clone()` method. Instead, use **Copy Constructors** or **Static Factory Methods** to replicate objects. They are safe, compile-time bound, and support final fields.
+
+### 14. FAQs
+- **Does clone() call class constructors?** No. `super.clone()` allocates memory natively by copying JVM bits directly, bypasses all constructors, and initializes the object directly.
+- **Is string cloned deeply by clone()?** Strings are immutable, so copying the reference address (shallow copy) is completely safe.
+
+### 15. Revision Notes
+- **Shallow Copy**: Copies object structure, shares nested instances.
+- **Deep Copy**: Recursively copies entire object structure, fully isolating states.
+- **Recommendation**: Use Copy Constructors over `clone()`.
+
+---
+
+## 5.9 SOLID Design Principles
+
+### 1. Definition
+**SOLID** is a structural acronym for five object-oriented design principles formulated by Robert C. Martin (Uncle Bob) that ensure clean, maintainable codebases:
+1. **Single Responsibility Principle (SRP)**: A class should have one, and only one, reason to change.
+2. **Open/Closed Principle (OCP)**: Software entities should be open for extension but closed for modification.
+3. **Liskov Substitution Principle (LSP)**: Subtypes must be replaceable by their base types without altering application correctness.
+4. **Interface Segregation Principle (ISP)**: Clients should not be forced to depend on methods they do not use.
+5. **Dependency Inversion Principle (DIP)**: Depend on abstractions (interfaces/abstract classes), not on concretions (concrete classes).
+
+### 2. Why It Exists
+- Prevents code rot: rigid code (hard to modify), fragile code (changing one thing breaks another), and immobile code (unable to reuse parts).
+- Enables large development teams to work on decoupled modules concurrently without merge conflicts or regression errors.
+
+### 3. Internal Working
+SOLID principles are conceptual design filters applied during compiler binding and architectural reviews. They enforce **low coupling** (minimal dependency between modules) and **high cohesion** (focused responsibility inside a module).
+
+### 4. Architecture
+SOLID principles guide structural interfaces and inheritance design:
+
+```mermaid
+graph TD
+    subgraph SOLID ["SOLID Design System"]
+        SRP["SRP: Single Responsibility<br>(Focused classes)"]
+        OCP["OCP: Open-Closed<br>(Abstractions / Polymorphism)"]
+        LSP["LSP: Liskov Substitution<br>(Behavioral Inheritance)"]
+        ISP["ISP: Interface Segregation<br>(Slim, specific interfaces)"]
+        DIP["DIP: Dependency Inversion<br>(Dependency Injection)"]
+    end
+```
+
+### 5. Syntax
+Standard pattern involves declaring small interfaces, using polymorphism for calculations, subclass behavior matching, and injecting interfaces via constructors.
+
+### 6. Example (Violations vs. Corrected Implementations)
+
+#### A. Single Responsibility Principle (SRP)
+*   **Violation**: A single class handles invoice calculation, printing, and database storage.
+```java
+// ❌ VIOLATION
+class Invoice {
+    double amount;
+    Invoice(double amt) { this.amount = amt; }
+    void calculateTax() { /* tax logic */ }
+    void printInvoice() { System.out.println("Printing..."); }
+    void saveToDatabase() { System.out.println("Saving to DB..."); }
+}
+```
+*   **Correction**: Divide into dedicated classes representing distinct responsibilities.
+```java
+// ✔ CORRECT
+class Invoice {
+    double amount;
+    Invoice(double amt) { this.amount = amt; }
+}
+class InvoicePrinter {
+    void print(Invoice inv) { System.out.println("Printing invoice..."); }
+}
+class InvoiceRepository {
+    void save(Invoice inv) { System.out.println("Saving to DB..."); }
+}
+```
+
+#### B. Open/Closed Principle (OCP)
+*   **Violation**: Modifying `AreaCalculator` every time a new shape class is added using `if-else` blocks.
+```java
+// ❌ VIOLATION
+class Rectangle { double l, w; }
+class Circle { double r; }
+class AreaCalculator {
+    public double calculateArea(Object shape) {
+        if (shape instanceof Rectangle) {
+            Rectangle r = (Rectangle) shape;
+            return r.l * r.w;
+        } else if (shape instanceof Circle) {
+            Circle c = (Circle) shape;
+            return Math.PI * c.r * c.r;
+        }
+        return 0;
+    }
+}
+```
+*   **Correction**: Use a `Shape` abstraction. To add new shapes, extend the interface without modifying the calculator class.
+```java
+// ✔ CORRECT
+interface Shape { double area(); }
+
+class Rectangle implements Shape {
+    double l, w;
+    public double area() { return l * w; }
+}
+
+class Circle implements Shape {
+    double r;
+    public double area() { return Math.PI * r * r; }
+}
+
+class AreaCalculator {
+    public double calculateArea(Shape shape) {
+        return shape.area(); // Closed for modification, open for extension!
+    }
+}
+```
+
+#### C. Liskov Substitution Principle (LSP)
+*   **Violation**: `Square` extends `Rectangle`. Setting width on Square overrides both width and height, breaking Rectangle's behavior.
+```java
+// ❌ VIOLATION
+class Rectangle {
+    int w, h;
+    void setWidth(int w) { this.w = w; }
+    void setHeight(int h) { this.h = h; }
+    int getArea() { return w * h; }
+}
+class Square extends Rectangle {
+    void setWidth(int w) { this.w = w; this.h = w; }
+    void setHeight(int h) { this.w = h; this.h = h; }
+}
+// Testing LSP
+class Test {
+    void checkArea(Rectangle r) {
+        r.setWidth(10);
+        r.setHeight(5);
+        // If r is Square, area will be 25, not 50. LSP is broken!
+        assert r.getArea() == 50; 
+    }
+}
+```
+*   **Correction**: Separate classes into appropriate hierarchies. Do not force inheritance when child properties contradict parent properties.
+```java
+// ✔ CORRECT
+interface Quadrilateral { int getArea(); }
+
+class Rectangle implements Quadrilateral {
+    int w, h;
+    Rectangle(int w, int h) { this.w = w; this.h = h; }
+    public int getArea() { return w * h; }
+}
+
+class Square implements Quadrilateral {
+    int side;
+    Square(int s) { this.side = s; }
+    public int getArea() { return side * side; }
+}
+```
+
+#### D. Interface Segregation Principle (ISP)
+*   **Violation**: A fat `Worker` interface forcing `Robot` class to implement `eat()`, which it doesn't need.
+```java
+// ❌ VIOLATION
+interface Worker {
+    void work();
+    void eat();
+}
+class Robot implements Worker {
+    public void work() { System.out.println("Working..."); }
+    public void eat() { /* Throws Exception or does nothing */ }
+}
+```
+*   **Correction**: Segregate into smaller, focused interfaces.
+```java
+// ✔ CORRECT
+interface Workable { void work(); }
+interface Feedable { void eat(); }
+
+class Human implements Workable, Feedable {
+    public void work() { System.out.println("Working..."); }
+    public void eat() { System.out.println("Eating..."); }
+}
+
+class Robot implements Workable {
+    public void work() { System.out.println("Working..."); }
+}
+```
+
+#### E. Dependency Inversion Principle (DIP)
+*   **Violation**: High-level `Car` class directly instantiates and depends on concrete `V8Engine` class.
+```java
+// ❌ VIOLATION
+class V8Engine {
+    void start() { System.out.println("V8 started"); }
+}
+class Car {
+    private V8Engine engine; // Tightly coupled!
+    Car() { this.engine = new V8Engine(); }
+    void drive() { engine.start(); }
+}
+```
+*   **Correction**: Inject an interface abstraction. High-level class depends on interface; concrete engines implement interface.
+```java
+// ✔ CORRECT
+interface Engine { void start(); }
+
+class V8Engine implements Engine {
+    public void start() { System.out.println("V8 started"); }
+}
+
+class ElectricEngine implements Engine {
+    public void start() { System.out.println("Electric motor started"); }
+}
+
+class Car {
+    private Engine engine; // Depends on abstraction
+    Car(Engine engine) { this.engine = engine; } // Dependency Injection
+    void drive() { engine.start(); }
+}
+```
+
+### 7. Dry Run
+In the corrected DIP structure:
+1. `Engine v8 = new V8Engine();`
+2. `Car myCar = new Car(v8);`
+3. Calling `myCar.drive()` invokes `v8.start()`, printing "V8 started".
+4. To upgrade to an electric car, pass `new ElectricEngine()` to the `Car` constructor. The `Car` code does not need to change or be recompiled.
+
+### 8. Real World Example
+- **Spring Framework**: The Spring container uses Constructor Dependency Injection to wire dependencies, matching the DIP principle.
+- **USB Ports**: Laptops expose USB ports (interfaces). The laptop doesn't care whether you connect a USB Mouse, USB Keyboard, or USB Flash Drive (concrete implementations)—they all work because they implement the USB protocol.
+
+### 9. Advantages
+- **Extensibility**: Adding features requires writing new classes, not modifying old ones.
+- **Maintainability**: Narrow responsibilities mean changes are isolated and local.
+- **Testability**: Interfaces make mocking easy for unit tests.
+
+### 10. Disadvantages
+- **Complexity**: Introduces more classes, interfaces, and abstractions, which can make simple programs harder to trace initially.
+
+### 11. Interview Questions
+> [!NOTE]
+> **Q1: Explain Liskov Substitution Principle.**
+> A: LSP states that objects of a superclass should be replaceable with objects of its subclasses without breaking the application. Subclasses must adhere to the behavioral contract of the parent class (e.g., matching inputs/outputs and pre/post conditions).
+>
+> **Q2: What is the difference between DIP and Dependency Injection (DI)?**
+> A: DIP is an architectural design principle (what you should do: depend on abstractions). DI is a design pattern (how you do it: passing variables into constructors or setters) used to implement DIP.
+
+### 12. Common Mistakes
+> [!CAUTION]
+> - Implementing interfaces for every single class in the system (over-engineering). Only apply SOLID where requirements change, or when extensions are anticipated.
+
+### 13. Best Practices
+> [!TIP]
+> Program to an interface, not an implementation (e.g., `List<String> list = new ArrayList<>();`). This simple Java habit enforces the core spirit of the Dependency Inversion Principle.
+
+### 14. FAQs
+- **Does SOLID apply to functional programming?** Some rules (like SRP) are universal, while others (like LSP) are specific to Object-Oriented class hierarchies.
+
+### 15. Revision Notes
+- **S**: One reason to change.
+- **O**: Extensible, no modifications to core code.
+- **L**: Child replaces Parent without bugs.
+- **I**: Clean interfaces, no unused method implementations.
+- **D**: Depend on interfaces, inject concrete instances.
+
+---
+
+## 5.10 Modern Java OOP Features (Sealed Classes and Records)
+
+### 1. Definition
+- **Record (Java 16+)**: A special class type designed to act as a transparent, immutable data carrier, automatically generating boilerplates (getters, constructors, hashCode, equals, toString).
+- **Sealed Class/Interface (Java 17+)**: A class or interface that explicitly limits which other classes or interfaces are allowed to extend or implement it.
+
+### 2. Why It Exists
+- **Records**: Eliminate the repetitive POJO/DTO boilerplate code (no need to write getters, constructor, `toString`, `equals`, or `hashCode`).
+- **Sealed Classes**: Provide secure, domain-bounded class hierarchies. They prevent arbitrary third-party extension of library classes and enable **pattern matching switch statements** to prove exhaustiveness at compile time.
+
+### 3. Internal Working
+- **Records**: Compiled to a final class extending `java.lang.Record`. Fields are declared private and final. Getters are auto-generated matching the field name (e.g., `user.username()` instead of `user.getUsername()`). Records cannot be extended because they are implicitly final, and they cannot extend other classes (due to single inheritance limits in Java).
+- **Sealed Classes**: The compiler stores a list of permitted subclasses in the bytecode metadata (`PermittedSubclasses` attribute). The JVM enforces this at class loading. All permitted subclasses must reside in the same package/module and must explicitly declare themselves as `final` (cannot be subclassed further), `sealed` (can be subclassed only by specified subclasses), or `non-sealed` (open for arbitrary subclassing).
+
+### 4. Architecture
+Sealed hierarchies model closed domain spaces:
+
+```mermaid
+graph TD
+    A[Sealed Interface: Shape] -->|permits| B[Record: Circle]
+    A -->|permits| C[Record: Rectangle]
+    A -->|permits| D[Sealed Class: Polygon]
+    D -->|permits| E[final Class: Triangle]
+    
+    style A fill:#f9f,stroke:#333
+    style D fill:#bbf,stroke:#333
+```
+
+### 5. Syntax
+```java
+// Sealed Interface
+public sealed interface Shape permits Circle, Rectangle {}
+
+// Records implementing Sealed Interface
+public record Circle(double radius) implements Shape {}
+public record Rectangle(double length, double width) implements Shape {}
+```
+
+### 6. Example (With Compact Constructor)
+```java
+// Record with validation logic
+public record Account(String id, double balance) {
+    
+    // Compact Constructor (no parameters list)
+    public Account {
+        if (balance < 0) {
+            throw new IllegalArgumentException("Balance cannot be negative");
+        }
+        id = id.trim(); // Can modify field binding variables
+    }
+}
+
+// Sealed Class Hierarchy
+public sealed class Vehicle permits Car, Truck {}
+
+public final class Car extends Vehicle {}
+
+public non-sealed class Truck extends Vehicle {} // Open to arbitrary inheritance
+```
+
+### 7. Dry Run
+*   **Records**:
+    1. `Account acc = new Account(" ACC001 ", 500);`
+    2. Compact constructor executes. `500 < 0` is false. `id` becomes `"ACC001"` (trimmed).
+    3. `System.out.println(acc.balance());` prints `500.0`.
+    4. `System.out.println(acc);` prints `Account[id=ACC001, balance=500.0]`.
+    5. `Account acc2 = new Account("ACC001", -10);` throws `IllegalArgumentException`.
+*   **Sealed class Switch Pattern Matching (Java 21+)**:
+```java
+public double getArea(Shape s) {
+    return switch (s) {
+        case Circle c -> Math.PI * c.radius() * c.radius();
+        case Rectangle r -> r.length() * r.width();
+        // No default block needed! Compiler knows Circle & Rectangle are exhaustive!
+    };
+}
+```
+
+### 8. Real World Example
+- **API Payloads (DTOs)**: Modeling REST controller API request/response structures using Records instead of heavy Lombok-annotated POJOs.
+- **Domain Modeling**: Modeling compiler expressions or algebraic state structures where a base state has a fixed set of transitions.
+
+### 9. Advantages
+- **Records**: Extreme boilerplate reduction (1 line of code replacing 60+ lines of POJO boilerplate).
+- **Sealed Classes**: Domain boundaries are preserved; exhaustiveness checks at compile time prevent runtime bugs.
+
+### 10. Disadvantages
+- **Records**: Incapable of extending other classes. They are strictly immutable, so they cannot support mutative states or lazy evaluation patterns.
+- **Sealed Classes**: Strict packaging limits make it difficult to support external extensions or plugins.
+
+### 11. Interview Questions
+> [!NOTE]
+> **Q1: Can a Record extend another class?**
+> A: No. A record cannot extend any other class because it implicitly extends `java.lang.Record`. Java does not support multiple class inheritance. However, a record can implement multiple interfaces.
+>
+> **Q2: What modifiers can a subclass of a sealed class declare?**
+> A: A permitted subclass of a sealed class must declare exactly one of the following modifiers:
+> - `final`: Prevents further subclassing.
+> - `sealed`: Restricts subclassing to its own permits list.
+> - `non-sealed`: Opens the subclass for unrestricted extension, breaking encapsulation on that branch.
+>
+> **Q3: What is a Compact Constructor in a Record?**
+> A: A compact constructor has no parameter list, no parentheses, and is used to validate or normalize parameters before they are assigned to final fields. The compiler handles the field assignments automatically.
+
+### 12. Common Mistakes
+> [!CAUTION]
+> - Declaring instance fields inside a record body. You can only declare static fields in a record body; all instance fields must be declared in the record header.
+> - Forgetting that records do not use standard bean getter naming conventions. Use `record.field()` instead of `record.getField()`.
+
+### 13. Best Practices
+> [!TIP]
+> Use Records for data transfer objects (DTOs), database projection mappings, and compound keys in collections. Use Sealed classes to design closed polymorphic components (like payment methods or AST structures).
+
+### 14. FAQs
+- **Are records serializable?** Yes, records are automatically serializable. Their serialization is highly secure because it bypasses standard custom constructor bypasses.
+- **Can a sealed class permit nested private classes?** Yes, if the permitted classes are nested, you can omit the `permits` clause; the compiler automatically infers them.
+
+### 15. Revision Notes
+- **Record**: Final immutable data carrier. No boilerplate.
+- **Sealed Class**: Bounded class tree. Permits subclasses to be `final`, `sealed`, or `non-sealed`.
+- **Java 21+**: Permits compile-time exhaustive checks in pattern matching switches.
 
 ====================================================================
 
