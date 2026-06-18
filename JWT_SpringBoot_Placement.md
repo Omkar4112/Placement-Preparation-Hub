@@ -655,13 +655,28 @@ const logout = () => {
 | ❌ **Expiry trade-off** | Short expiry = frequent re-login. Long expiry = security risk |
 | ❌ **XSS risk** | If stored in localStorage, JavaScript malware can steal the token |
 
-### How to handle logout with JWT (interview question):
+### JWT Logout (Easy Interview Answer)
 
-> Option 1 — **Short-lived tokens** (15 min expiry). After logout, token expires soon anyway.
+JWT is stored on the **client side**, so the server **cannot directly destroy it**.
 
-> Option 2 — **Token Blacklist in Redis.** When user logs out, store the token in Redis with a TTL equal to the remaining token life. On every request, check if token is in the blacklist.
+**1. Short Expiry Token**
+- Keep JWT valid for only **15–30 minutes**
+- After logout, delete it from browser/mobile storage
+- Even if someone gets it, it will expire soon
 
-> Option 3 — **Refresh Token strategy.** Use short-lived access tokens + long-lived refresh tokens. Invalidate the refresh token on logout.
+**2. Blacklist Method**
+- When user logs out, save the JWT in **Redis blacklist**
+- On every request, check whether the token is blacklisted
+- If blacklisted → reject the request
+
+**3. Refresh Token Method (Most Common)**
+- **Access Token** → short expiry (15 min)
+- **Refresh Token** → long expiry (days/weeks)
+- On logout, delete/invalidate the refresh token
+- User cannot get a new access token after logout
+
+**One-Line Interview Answer:**
+> JWT logout is usually handled by deleting the token on the client, using short-lived access tokens, and often invalidating refresh tokens or maintaining a blacklist for extra security.
 
 ---
 
