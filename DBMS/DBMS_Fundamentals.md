@@ -190,7 +190,126 @@ Table 1: DEPARTMENT                 Table 2: EMPLOYEE
 
 ---
 
-## 5. Database Languages (SQL Categories)
+## 5. More Key Types (Composite, Surrogate, Natural)
+
+### Composite Key
+A primary key made up of **two or more columns** that together uniquely identify a row. Neither column alone is unique.
+
+**Example:**  
+`Enrollment(Student_ID, Course_ID)` — Neither `Student_ID` nor `Course_ID` alone is unique, but the combination is.
+
+```sql
+CREATE TABLE Enrollment (
+    Student_ID INT,
+    Course_ID  INT,
+    Grade      CHAR(1),
+    PRIMARY KEY (Student_ID, Course_ID)   -- Composite Primary Key
+);
+```
+
+### Surrogate Key
+An **artificial key** created by the system (usually an auto-incremented integer) when no good natural key exists.
+
+- **Natural Key:** Uses real-world data (e.g., `Aadhaar_Number`, `Email`).
+- **Surrogate Key:** Meaningless number assigned by the DB (e.g., `Emp_ID = 101`).
+
+> [!TIP]
+> **Interview Answer:** Surrogate keys are preferred because natural keys can change (e.g., a person changes their email) which would break all foreign key references. Surrogate keys never change.
+
+---
+
+## 6. Integrity Constraints
+
+Integrity constraints are rules enforced by the DBMS to ensure accuracy and consistency of data.
+
+| Constraint | Rule | Example |
+| :--- | :--- | :--- |
+| **Entity Integrity** | Primary Key cannot be NULL | `Emp_ID` must always have a value |
+| **Referential Integrity** | Foreign Key must match an existing PK or be NULL | `Dept_ID` in Employee must exist in Department |
+| **Domain Integrity** | Values must belong to a valid domain (data type, range) | Age must be a positive integer |
+| **User-Defined Integrity** | Custom business rules | Salary must be > 0, Grade must be A/B/C/D/F |
+
+```sql
+CREATE TABLE Employees (
+    Emp_ID   INT         PRIMARY KEY,               -- Entity Integrity
+    Emp_Name VARCHAR(50) NOT NULL,                  -- Domain Integrity
+    Salary   DECIMAL(10,2) CHECK (Salary > 0),      -- User-Defined Integrity
+    Dept_ID  INT,
+    FOREIGN KEY (Dept_ID) REFERENCES Departments(Dept_ID)  -- Referential Integrity
+);
+```
+
+### Referential Integrity Actions (What happens when a PK is deleted?)
+
+| Action | Behavior |
+| :--- | :--- |
+| `ON DELETE CASCADE` | Deletes all child rows automatically |
+| `ON DELETE SET NULL` | Sets FK to NULL in child rows |
+| `ON DELETE RESTRICT` | Blocks deletion if child rows exist (default) |
+| `ON DELETE NO ACTION` | Similar to RESTRICT but checked at end of transaction |
+
+```sql
+-- Example: Deleting a Department auto-deletes its employees
+FOREIGN KEY (Dept_ID) REFERENCES Departments(Dept_ID) ON DELETE CASCADE
+```
+
+---
+
+## 7. Functional Dependencies (FD)
+
+A **Functional Dependency** (written as `X → Y`) means that knowing `X` uniquely determines the value of `Y`.
+
+> [!NOTE]
+> **Analogy:** `Student_ID → Student_Name` means "if you know the Student ID, you will always know exactly one Student Name." The ID *determines* the Name.
+
+### Types of Functional Dependencies
+
+| Type | Definition | Example |
+| :--- | :--- | :--- |
+| **Trivial FD** | Y is a subset of X. (X → Y where Y ⊆ X) | `{A, B} → A` |
+| **Non-Trivial FD** | Y is NOT a subset of X | `Student_ID → Name` |
+| **Partial FD** | Y depends on part of a composite PK | `{SID, CID} → SName` (only SID determines SName) |
+| **Transitive FD** | X → Y → Z (Z depends on a non-key Y) | `EmpID → DeptID → DeptName` |
+| **Multi-valued FD** | X →→ Y (X determines a *set* of Y values) | `Student →→ Phone` (student has many phones) |
+
+### Armstrong's Axioms (Rules to Derive New FDs)
+
+These are the foundational rules for reasoning about functional dependencies.
+
+| Axiom | Rule | Example |
+| :--- | :--- | :--- |
+| **Reflexivity** | If Y ⊆ X, then X → Y | `{A, B} → A` |
+| **Augmentation** | If X → Y, then XZ → YZ | If `A → B`, then `AC → BC` |
+| **Transitivity** | If X → Y and Y → Z, then X → Z | If `A → B` and `B → C`, then `A → C` |
+
+> [!TIP]
+> **Derived Rules:**
+> - **Union:** If X→Y and X→Z, then X→YZ
+> - **Decomposition:** If X→YZ, then X→Y and X→Z
+> - **Pseudotransitivity:** If X→Y and WY→Z, then WX→Z
+
+### Finding Closure (X⁺) — How to find all attributes determined by X
+
+**Algorithm:** Given FD set F and set of attributes X, find X⁺:
+1. Start with X⁺ = X
+2. For each FD A→B in F: if A ⊆ X⁺, add B to X⁺
+3. Repeat until no new attributes are added
+
+**Example:**
+```
+Given: FDs = { A→B, B→C, C→D }
+Find: A⁺
+
+Step 1: A⁺ = {A}
+Step 2: A→B applies (A⊆{A}), so A⁺ = {A, B}
+Step 3: B→C applies (B⊆{A,B}), so A⁺ = {A, B, C}
+Step 4: C→D applies, so A⁺ = {A, B, C, D}
+Result: A⁺ = {A, B, C, D} → A is a Super Key!
+```
+
+---
+
+## 8. Database Languages (SQL Categories)
 
 SQL is divided into sub-languages based on their function.
 
@@ -235,15 +354,24 @@ This is asked in almost every technical interview!
 3. **3-Level Architecture:** External (views), Conceptual (tables/logic), Internal (physical storage).
 4. **Data Independence:** Ability to modify one level without affecting the level above it.
 5. **Keys:** Super (unique combinations), Candidate (minimal super), Primary (chosen candidate), Foreign (links tables).
-6. **Languages:** DDL (CREATE/DROP), DML (INSERT/UPDATE), DQL (SELECT), TCL (COMMIT/ROLLBACK), DCL (GRANT/REVOKE).
-7. **TRUNCATE vs DELETE:** TRUNCATE is fast, DDL, no rollback. DELETE is slower, DML, can rollback.
+6. **Composite Key:** PK made of 2+ columns. Surrogate Key: system-generated artificial key.
+7. **Languages:** DDL (CREATE/DROP), DML (INSERT/UPDATE), DQL (SELECT), TCL (COMMIT/ROLLBACK), DCL (GRANT/REVOKE).
+8. **TRUNCATE vs DELETE:** TRUNCATE is fast, DDL, no rollback. DELETE is slower, DML, can rollback.
+9. **Integrity Constraints:** Entity (PK not NULL), Referential (FK matches PK), Domain (valid data type), User-defined (CHECK).
+10. **Functional Dependency X→Y:** Knowing X uniquely determines Y.
+11. **Armstrong's Axioms:** Reflexivity, Augmentation, Transitivity.
+12. **Closure X⁺:** All attributes that can be derived from X using FD rules.
+13. **Referential Actions:** CASCADE (auto-delete children), SET NULL, RESTRICT (block delete).
 
 ## 🤔 Common Mistakes Students Make in Interviews
 1. **Confusing Super Key and Candidate Key:** A Candidate Key must be *minimal*. A Super Key doesn't have to be.
 2. **Saying TRUNCATE is DML:** TRUNCATE is **DDL**. It does not log individual row deletions.
 3. **Saying Foreign Key cannot be NULL:** A Foreign Key **CAN** be NULL (e.g., an employee who hasn't been assigned a department yet). It is Primary Keys that cannot be NULL.
+4. **Confusing Partial and Transitive FD:** Partial FD requires a composite primary key and a non-key depending on part of it. Transitive FD is a chain: X → non-key → another non-key.
+5. **Forgetting ON DELETE actions:** Many students describe referential integrity but forget to mention CASCADE, SET NULL, RESTRICT options when asked about FK behavior.
+6. **Saying Surrogate Key has real meaning:** Surrogate keys are intentionally meaningless. Their value conveys nothing about the entity.
 
-## 📝 Top 5 Placement MCQs
+## 📝 Top 10 Placement MCQs
 
 **Q1. Which level of architecture provides Physical Data Independence?**
 A) External Level
@@ -265,6 +393,79 @@ B) Foreign Key
 C) Candidate Key
 D) Alternate Key
 > **Answer: C) Candidate Key.**
+
+**Q4. Can a Foreign Key accept NULL values?**
+A) Yes, always.
+B) No, never.
+C) Yes, unless a NOT NULL constraint is explicitly applied.
+D) Only if the Primary Key it references is also NULL.
+> **Answer: C.** (Foreign keys can be NULL).
+
+**Q5. The ability to modify the conceptual schema without altering the external schema is called:**
+A) Physical Data Independence
+B) Logical Data Independence
+C) Architecture Independence
+D) View Independence
+> **Answer: B) Logical Data Independence.**
+
+**Q6. Which integrity constraint ensures the Primary Key column can never be NULL?**
+A) Domain Integrity
+B) Referential Integrity
+C) Entity Integrity
+D) User-defined Integrity
+> **Answer: C) Entity Integrity.**
+
+**Q7. Given FDs: A→B and B→C. What is A⁺ (closure of A)?**
+A) {A}
+B) {A, B}
+C) {A, B, C}
+D) {B, C}
+> **Answer: C) {A, B, C}.** By transitivity: A→B→C, so A determines B and C.
+
+**Q8. Which Armstrong's Axiom states: If X→Y, then XZ→YZ?**
+A) Reflexivity
+B) Augmentation
+C) Transitivity
+D) Decomposition
+> **Answer: B) Augmentation.**
+
+**Q9. A key made up of two or more columns that together uniquely identify a row is called a:**
+A) Candidate Key
+B) Surrogate Key
+C) Composite Key
+D) Alternate Key
+> **Answer: C) Composite Key.**
+
+**Q10. When a parent record is deleted and the `ON DELETE CASCADE` rule is applied, what happens to child records?**
+A) Child records are set to NULL
+B) Child records are blocked from deletion
+C) Child records are automatically deleted
+D) An error is thrown
+> **Answer: C) Child records are automatically deleted.**
+
+## 🎤 Top 10 Interview Questions
+1. **Explain the difference between DELETE, TRUNCATE, and DROP.**
+   * *Answer:* Mention DML vs DDL, ability to Rollback, speed, and whether the table structure remains.
+2. **What is the difference between Logical and Physical Data Independence?**
+   * *Answer:* Logical allows changing the conceptual schema (adding columns) without affecting external views. Physical allows changing storage structures (like adding an SSD or changing an index) without affecting the conceptual schema.
+3. **What is a Foreign Key? Can a table have multiple Foreign Keys?**
+   * *Answer:* Yes, a table can have multiple foreign keys pointing to different tables. It establishes a relationship between two tables.
+4. **Why do we need a Candidate Key if we already have a Primary Key?**
+   * *Answer:* A table might have multiple columns that uniquely identify a row (e.g., Email, SSN, Employee_ID). All of these are Candidate Keys. The DBA chooses one to be the Primary Key. The rest are Alternate Keys.
+5. **What happens to the Foreign Key data if the Primary Key record is deleted?**
+   * *Answer:* It depends on the constraint. It could block the deletion (`RESTRICT`), delete the foreign key records too (`CASCADE`), or set the foreign key to NULL (`SET NULL`).
+6. **What is a Functional Dependency? Give an example.**
+   * *Answer:* A FD `X→Y` means knowing the value of X uniquely determines the value of Y. Example: `Employee_ID → Employee_Name` means knowing the Employee ID always gives you exactly one Employee Name.
+7. **What are Armstrong's Axioms? Why are they important?**
+   * *Answer:* They are inference rules (Reflexivity, Augmentation, Transitivity) used to derive all valid functional dependencies from a given set. They form the mathematical foundation of normalization theory.
+8. **What is the difference between a Natural Key and a Surrogate Key?**
+   * *Answer:* A Natural Key is derived from real-world data (like Email or Aadhaar). A Surrogate Key is an artificial, system-generated identifier (like an auto-increment ID) with no business meaning. Surrogate keys are preferred because natural keys can change, breaking FK references.
+9. **Explain Entity Integrity and Referential Integrity.**
+   * *Answer:* Entity Integrity: The Primary Key of a table cannot be NULL or duplicate. Referential Integrity: Every Foreign Key value must either be NULL or match an existing Primary Key value in the referenced table.
+10. **How do you find the closure of a set of attributes?**
+    * *Answer:* Start with X⁺ = X. Repeatedly apply FDs: if the left-hand side of any FD is a subset of X⁺, add the right-hand side to X⁺. Continue until no more attributes can be added. The result X⁺ is the closure.
+
+
 
 **Q4. Can a Foreign Key accept NULL values?**
 A) Yes, always.

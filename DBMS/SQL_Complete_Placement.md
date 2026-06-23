@@ -759,7 +759,540 @@ WHERE Salary = LAG(Salary) OVER (ORDER BY Emp_ID);
 
 ---
 
-# 🛑 CHAPTER END REVISIONS 🛑
+## 18. String Functions (MySQL)
+
+String functions are essential for data cleaning and transformation. Highly tested in coding rounds.
+
+| Function | Description | Example | Output |
+| :--- | :--- | :--- | :--- |
+| `UPPER(str)` | Converts to uppercase | `UPPER('alice')` | `ALICE` |
+| `LOWER(str)` | Converts to lowercase | `LOWER('ALICE')` | `alice` |
+| `LENGTH(str)` | Returns byte length | `LENGTH('Alice')` | `5` |
+| `CHAR_LENGTH(str)` | Returns character count | `CHAR_LENGTH('Alice')` | `5` |
+| `SUBSTRING(str, pos, len)` | Extracts substring | `SUBSTRING('Alice', 2, 3)` | `lic` |
+| `LEFT(str, n)` | First N characters | `LEFT('Alice', 3)` | `Ali` |
+| `RIGHT(str, n)` | Last N characters | `RIGHT('Alice', 3)` | `ice` |
+| `TRIM(str)` | Removes leading/trailing spaces | `TRIM('  hi  ')` | `hi` |
+| `LTRIM(str)` | Removes leading spaces | `LTRIM('  hi')` | `hi` |
+| `RTRIM(str)` | Removes trailing spaces | `RTRIM('hi  ')` | `hi` |
+| `REPLACE(str, from, to)` | Replaces substring | `REPLACE('Hello World', 'World', 'SQL')` | `Hello SQL` |
+| `CONCAT(s1, s2, ...)` | Joins strings | `CONCAT('Alice', ' - ', 'HR')` | `Alice - HR` |
+| `INSTR(str, substr)` | Position of first occurrence | `INSTR('Alice', 'li')` | `2` |
+| `LPAD(str, len, pad)` | Left-pads to length | `LPAD('5', 4, '0')` | `0005` |
+| `RPAD(str, len, pad)` | Right-pads to length | `RPAD('5', 4, '0')` | `5000` |
+| `REVERSE(str)` | Reverses the string | `REVERSE('SQL')` | `LQS` |
+
+```sql
+-- Practical Examples
+SELECT UPPER(Emp_Name), CHAR_LENGTH(Emp_Name) AS Name_Length
+FROM Employees;
+
+-- Extract first name from 'Alice Smith'
+SELECT SUBSTRING_INDEX('Alice Smith', ' ', 1) AS First_Name;
+-- Output: Alice
+
+-- Pad employee ID to 5 digits: 101 → 00101
+SELECT LPAD(Emp_ID, 5, '0') AS Padded_ID FROM Employees;
+```
+
+---
+
+## 19. Date and Time Functions (MySQL)
+
+| Function | Description | Example | Output |
+| :--- | :--- | :--- | :--- |
+| `NOW()` | Current date and time | `NOW()` | `2025-01-15 14:30:00` |
+| `CURDATE()` | Current date only | `CURDATE()` | `2025-01-15` |
+| `CURTIME()` | Current time only | `CURTIME()` | `14:30:00` |
+| `DATE(datetime)` | Extracts date part | `DATE(NOW())` | `2025-01-15` |
+| `YEAR(date)` | Extracts year | `YEAR('2025-01-15')` | `2025` |
+| `MONTH(date)` | Extracts month | `MONTH('2025-01-15')` | `1` |
+| `DAY(date)` | Extracts day | `DAY('2025-01-15')` | `15` |
+| `DATEDIFF(d1, d2)` | Days between two dates | `DATEDIFF('2025-01-15', '2025-01-01')` | `14` |
+| `DATE_ADD(date, INTERVAL n unit)` | Adds to a date | `DATE_ADD('2025-01-01', INTERVAL 30 DAY)` | `2025-01-31` |
+| `DATE_SUB(date, INTERVAL n unit)` | Subtracts from a date | `DATE_SUB('2025-01-31', INTERVAL 1 MONTH)` | `2024-12-31` |
+| `DATE_FORMAT(date, format)` | Formats a date | `DATE_FORMAT('2025-01-15', '%d-%b-%Y')` | `15-Jan-2025` |
+| `TIMESTAMPDIFF(unit, d1, d2)` | Difference in specified unit | `TIMESTAMPDIFF(YEAR, '2000-01-01', '2025-01-01')` | `25` |
+| `EXTRACT(unit FROM date)` | Extracts a date part | `EXTRACT(YEAR FROM '2025-01-15')` | `2025` |
+
+```sql
+-- Employees hired more than 5 years ago (assuming a Hire_Date column)
+SELECT Emp_Name FROM Employees
+WHERE TIMESTAMPDIFF(YEAR, Hire_Date, CURDATE()) > 5;
+
+-- Format today's date
+SELECT DATE_FORMAT(CURDATE(), '%d/%m/%Y') AS Formatted_Date;
+-- Output: 15/01/2025
+```
+
+---
+
+## 20. Mathematical Functions
+
+| Function | Description | Example | Output |
+| :--- | :--- | :--- | :--- |
+| `ROUND(n, d)` | Rounds to d decimal places | `ROUND(456.567, 2)` | `456.57` |
+| `CEIL(n)` / `CEILING(n)` | Rounds UP to nearest integer | `CEIL(4.1)` | `5` |
+| `FLOOR(n)` | Rounds DOWN to nearest integer | `FLOOR(4.9)` | `4` |
+| `ABS(n)` | Absolute value | `ABS(-50)` | `50` |
+| `MOD(n, d)` | Remainder (modulo) | `MOD(10, 3)` | `1` |
+| `POWER(n, p)` | n raised to power p | `POWER(2, 10)` | `1024` |
+| `SQRT(n)` | Square root | `SQRT(144)` | `12` |
+| `TRUNCATE(n, d)` | Truncates to d decimal places (no rounding) | `TRUNCATE(456.567, 2)` | `456.56` |
+
+```sql
+-- Round average salary to 2 decimal places
+SELECT ROUND(AVG(Salary), 2) AS Avg_Salary FROM Employees;
+
+-- Find employees with odd Emp_IDs
+SELECT Emp_Name FROM Employees WHERE MOD(Emp_ID, 2) = 1;
+```
+
+---
+
+## 21. Transactions: BEGIN, COMMIT, ROLLBACK, SAVEPOINT
+
+A **Transaction** is a sequence of SQL statements treated as a single unit of work.
+
+```sql
+-- Basic Transaction
+START TRANSACTION;  -- or BEGIN;
+
+    UPDATE Employees SET Salary = Salary - 5000 WHERE Emp_ID = 101;
+    UPDATE Employees SET Salary = Salary + 5000 WHERE Emp_ID = 102;
+
+COMMIT;  -- Make changes permanent
+
+-- If something goes wrong:
+ROLLBACK;  -- Undo all changes since START TRANSACTION
+```
+
+### SAVEPOINT — Partial Rollback
+
+A SAVEPOINT lets you rollback to a specific point within a transaction without undoing everything.
+
+```sql
+START TRANSACTION;
+
+    INSERT INTO Employees VALUES (110, 'Zara', 70000, 1, 101);
+    SAVEPOINT after_insert;  -- Mark this point
+
+    UPDATE Employees SET Salary = -1 WHERE Emp_ID = 110;  -- Mistake!
+
+ROLLBACK TO SAVEPOINT after_insert;  -- Undo only the UPDATE, keep the INSERT
+
+COMMIT;  -- Now only the INSERT is committed
+```
+
+> [!TIP]
+> **Memory Trick:**
+> - `COMMIT` = Save progress in a game
+> - `ROLLBACK` = Restart from last save
+> - `SAVEPOINT` = Create a checkpoint mid-game
+
+---
+
+## 22. CTEs (Common Table Expressions) — WITH Clause
+
+A **CTE** is a named temporary result set that exists only for the duration of a single query. It makes complex queries more readable.
+
+### Basic CTE
+
+```sql
+-- Without CTE (hard to read nested subquery)
+SELECT * FROM (
+    SELECT Emp_Name, Salary, DENSE_RANK() OVER (ORDER BY Salary DESC) AS rnk
+    FROM Employees WHERE Salary IS NOT NULL
+) AS ranked WHERE rnk = 2;
+
+-- With CTE (clean and readable)
+WITH RankedSalaries AS (
+    SELECT Emp_Name, Salary,
+           DENSE_RANK() OVER (ORDER BY Salary DESC) AS rnk
+    FROM Employees WHERE Salary IS NOT NULL
+)
+SELECT Emp_Name, Salary FROM RankedSalaries WHERE rnk = 2;
+-- Output: Bob (80000), Eve (80000)
+```
+
+### Multiple CTEs
+
+```sql
+WITH
+    IT_Employees AS (
+        SELECT * FROM Employees WHERE Dept_ID = 2
+    ),
+    IT_Stats AS (
+        SELECT AVG(Salary) AS Avg_IT_Salary FROM IT_Employees
+    )
+SELECT E.Emp_Name, E.Salary, S.Avg_IT_Salary
+FROM IT_Employees E, IT_Stats S;
+```
+
+### ⭐⭐⭐⭐⭐ Recursive CTE (Very Important for Interviews!)
+
+A **Recursive CTE** calls itself and is used for hierarchical data (org charts, category trees, folder structures).
+
+**Use Case:** Find all employees under a manager (the entire org hierarchy).
+
+```sql
+-- Find Alice's entire reporting chain (all employees reporting to Alice, directly or indirectly)
+WITH RECURSIVE OrgChart AS (
+    -- Anchor member: Start with Alice (Emp_ID = 101)
+    SELECT Emp_ID, Emp_Name, Manager_ID, 0 AS Level
+    FROM Employees
+    WHERE Emp_ID = 101
+
+    UNION ALL
+
+    -- Recursive member: Find employees whose manager is already in the CTE
+    SELECT E.Emp_ID, E.Emp_Name, E.Manager_ID, O.Level + 1
+    FROM Employees E
+    INNER JOIN OrgChart O ON E.Manager_ID = O.Emp_ID
+)
+SELECT Emp_ID, Emp_Name, Level FROM OrgChart;
+```
+
+**Output:**
+| Emp_ID | Emp_Name | Level |
+|:---|:---|:---|
+| 101 | Alice | 0 (top) |
+| 102 | Bob | 1 |
+| 103 | Charlie | 1 |
+| 105 | Eve | 1 |
+| 108 | Henry | 1 |
+| 104 | David | 2 |
+| 106 | Frank | 2 |
+| 107 | Grace | 2 |
+
+> [!IMPORTANT]
+> **Recursive CTE Structure:**
+> 1. **Anchor Member:** The base case (starting row).
+> 2. `UNION ALL`
+> 3. **Recursive Member:** References the CTE itself to get the next level.
+> MySQL supports Recursive CTEs from version 8.0+.
+
+---
+
+## 23. Stored Procedures
+
+A **Stored Procedure** is a precompiled, reusable block of SQL stored in the database. Call it with `CALL`.
+
+```sql
+-- Create a stored procedure to give a department a salary raise
+DELIMITER $$
+
+CREATE PROCEDURE GiveSalaryRaise(
+    IN dept_id INT,        -- IN: input parameter (read-only inside proc)
+    IN raise_pct DECIMAL(5,2)  -- percentage raise
+)
+BEGIN
+    UPDATE Employees
+    SET Salary = Salary * (1 + raise_pct / 100)
+    WHERE Dept_ID = dept_id AND Salary IS NOT NULL;
+    
+    SELECT CONCAT('Salary updated for Dept_ID: ', dept_id) AS Message;
+END$$
+
+DELIMITER ;
+
+-- Call the procedure
+CALL GiveSalaryRaise(2, 10);  -- Give IT department a 10% raise
+```
+
+### IN vs OUT vs INOUT Parameters
+
+| Parameter Type | Description |
+| :--- | :--- |
+| `IN` | Read-only input value. Changes inside procedure do NOT affect the caller. |
+| `OUT` | Output value. Procedure sets it; caller can read it after the call. |
+| `INOUT` | Both input and output. Caller passes a value in; procedure can modify it. |
+
+```sql
+-- Procedure with OUT parameter
+DELIMITER $$
+CREATE PROCEDURE GetDeptHeadcount(
+    IN dept_id INT,
+    OUT headcount INT
+)
+BEGIN
+    SELECT COUNT(*) INTO headcount
+    FROM Employees
+    WHERE Dept_ID = dept_id;
+END$$
+DELIMITER ;
+
+-- Calling with OUT
+CALL GetDeptHeadcount(2, @count);
+SELECT @count;  -- Output: 3
+```
+
+> [!TIP]
+> **Interview Answer:** Stored Procedures improve performance (precompiled), reduce network traffic (only CALL sent, not full SQL), and improve security (users call procedures without direct table access).
+
+---
+
+## 24. User-Defined Functions (UDF)
+
+A **Function** is similar to a Stored Procedure but MUST return a single value and can be used inside a SELECT statement.
+
+```sql
+DELIMITER $$
+
+CREATE FUNCTION GetSalaryGrade(salary DECIMAL(10,2))
+RETURNS VARCHAR(10)
+DETERMINISTIC   -- Same input always produces same output
+BEGIN
+    DECLARE grade VARCHAR(10);
+    IF salary >= 80000 THEN SET grade = 'High';
+    ELSEIF salary >= 60000 THEN SET grade = 'Medium';
+    ELSEIF salary IS NULL THEN SET grade = 'Not Set';
+    ELSE SET grade = 'Low';
+    END IF;
+    RETURN grade;
+END$$
+
+DELIMITER ;
+
+-- Use in SELECT (like a built-in function)
+SELECT Emp_Name, Salary, GetSalaryGrade(Salary) AS Grade
+FROM Employees;
+```
+
+| Feature | Stored Procedure | Function |
+| :--- | :--- | :--- |
+| Returns value | Optional (can return 0 or many values) | Must return exactly 1 value |
+| Used in SELECT | ❌ Cannot be called in SELECT | ✅ Can be used in SELECT |
+| Called with | `CALL proc_name()` | Used in expression: `SELECT func_name()` |
+| Transaction control | Can use COMMIT/ROLLBACK | Cannot |
+
+---
+
+## 25. Triggers
+
+A **Trigger** is a special stored procedure that automatically fires in response to a DML event (`INSERT`, `UPDATE`, `DELETE`) on a table.
+
+**Timing:** `BEFORE` (fires before the DML) or `AFTER` (fires after the DML).
+
+```sql
+-- AFTER INSERT Trigger: Log every new employee into an audit table
+CREATE TABLE Audit_Log (
+    Log_ID     INT AUTO_INCREMENT PRIMARY KEY,
+    Action     VARCHAR(50),
+    Emp_ID     INT,
+    Log_Time   DATETIME DEFAULT NOW()
+);
+
+DELIMITER $$
+
+CREATE TRIGGER after_employee_insert
+AFTER INSERT ON Employees
+FOR EACH ROW
+BEGIN
+    INSERT INTO Audit_Log(Action, Emp_ID)
+    VALUES ('INSERT', NEW.Emp_ID);
+END$$
+
+-- BEFORE UPDATE Trigger: Prevent salary from being set below 0
+CREATE TRIGGER before_salary_update
+BEFORE UPDATE ON Employees
+FOR EACH ROW
+BEGIN
+    IF NEW.Salary < 0 THEN
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'Salary cannot be negative!';
+    END IF;
+END$$
+
+DELIMITER ;
+```
+
+> [!NOTE]
+> **`NEW` and `OLD` in Triggers:**
+> - `NEW.column` = The new value being inserted/updated.
+> - `OLD.column` = The old value before the update/delete.
+> - `INSERT` triggers: only `NEW` is available.
+> - `DELETE` triggers: only `OLD` is available.
+> - `UPDATE` triggers: both `NEW` and `OLD` are available.
+
+---
+
+## 26. More Window Functions: NTILE, FIRST_VALUE, LAST_VALUE
+
+### NTILE(n)
+Divides rows into `n` equal buckets and assigns a bucket number to each row.
+
+```sql
+-- Divide employees into 4 salary quartiles
+SELECT Emp_Name, Salary,
+    NTILE(4) OVER (ORDER BY Salary DESC) AS Quartile
+FROM Employees WHERE Salary IS NOT NULL;
+```
+
+**Output:**
+| Emp_Name | Salary | Quartile |
+|:---|:---|:---|
+| Alice | 90000 | 1 (top 25%) |
+| Bob | 80000 | 1 |
+| Eve | 80000 | 2 |
+| Charlie | 75000 | 2 |
+| Frank | 60000 | 3 |
+| Grace | 60000 | 3 |
+| David | 50000 | 4 (bottom 25%) |
+
+### FIRST_VALUE() and LAST_VALUE()
+
+```sql
+-- Show each employee's salary alongside the highest salary in their department
+SELECT Emp_Name, Dept_ID, Salary,
+    FIRST_VALUE(Salary) OVER (PARTITION BY Dept_ID ORDER BY Salary DESC) AS Dept_Max_Salary,
+    LAST_VALUE(Salary)  OVER (PARTITION BY Dept_ID ORDER BY Salary DESC
+                              ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING) AS Dept_Min_Salary
+FROM Employees WHERE Salary IS NOT NULL;
+```
+
+> [!WARNING]
+> `LAST_VALUE` requires `ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING` to see the actual last value in the window. Without this, it only looks at rows up to the current row.
+
+---
+
+## 27. ROLLUP and CUBE (Subtotals and Grand Totals)
+
+### GROUP BY WITH ROLLUP
+Adds subtotals and a grand total row automatically.
+
+```sql
+SELECT Dept_ID, COUNT(*) AS Headcount, SUM(Salary) AS Total_Salary
+FROM Employees
+WHERE Salary IS NOT NULL
+GROUP BY Dept_ID WITH ROLLUP;
+```
+
+**Output:**
+| Dept_ID | Headcount | Total_Salary |
+|:---|:---|:---|
+| 1 | 1 | 90000 |
+| 2 | 3 | 235000 |
+| 3 | 1 | 50000 |
+| 4 | 2 | 120000 |
+| **NULL** | **7** | **495000** ← Grand Total |
+
+> [!NOTE]
+> The `NULL` in the last row represents the grand total (all groups combined). Use `COALESCE(Dept_ID, 'ALL')` to show "ALL" instead of NULL.
+
+---
+
+## 28. EXPLAIN — Query Optimization
+
+`EXPLAIN` shows how MySQL executes a query — essential for performance tuning interviews.
+
+```sql
+EXPLAIN SELECT * FROM Employees WHERE Dept_ID = 2;
+```
+
+**Key columns in EXPLAIN output:**
+| Column | What to Look For |
+| :--- | :--- |
+| `type` | `ALL` = Full scan (bad for large tables). `ref`/`range`/`const` = Index used (good). |
+| `rows` | Estimated number of rows examined. Lower is better. |
+| `key` | The index actually used (NULL means no index used). |
+| `Extra` | `Using filesort` = Sorting in memory (can be slow). `Using index` = Index covers the query (fast). |
+
+```sql
+-- Without index: type=ALL, key=NULL (full scan)
+EXPLAIN SELECT * FROM Employees WHERE Dept_ID = 2;
+
+-- After creating index:
+CREATE INDEX idx_dept ON Employees(Dept_ID);
+
+-- With index: type=ref, key=idx_dept (efficient!)
+EXPLAIN SELECT * FROM Employees WHERE Dept_ID = 2;
+```
+
+---
+
+## 29. More Classic Placement Query Patterns
+
+### 9. Running Total (Cumulative Sum)
+```sql
+SELECT Emp_Name, Salary,
+    SUM(Salary) OVER (ORDER BY Emp_ID) AS Running_Total
+FROM Employees WHERE Salary IS NOT NULL;
+```
+
+### 10. Moving Average (3-row window)
+```sql
+SELECT Emp_Name, Salary,
+    AVG(Salary) OVER (ORDER BY Emp_ID ROWS BETWEEN 2 PRECEDING AND CURRENT ROW) AS Moving_Avg
+FROM Employees WHERE Salary IS NOT NULL;
+```
+
+### 11. Employees Without a Department (Orphan Records)
+```sql
+-- Using LEFT JOIN — more efficient than NOT IN with NULLs
+SELECT E.Emp_Name
+FROM Employees E
+LEFT JOIN Departments D ON E.Dept_ID = D.Dept_ID
+WHERE D.Dept_ID IS NULL;
+```
+
+### 12. Departments With No Employees
+```sql
+SELECT D.Dept_Name
+FROM Departments D
+LEFT JOIN Employees E ON D.Dept_ID = E.Dept_ID
+WHERE E.Emp_ID IS NULL;
+```
+
+### 13. Find All Managers (Employees Who Manage Others)
+```sql
+SELECT DISTINCT M.Emp_Name AS Manager
+FROM Employees E
+JOIN Employees M ON E.Manager_ID = M.Emp_ID;
+-- Output: Alice, Bob
+```
+
+### 14. Employees Who Are NOT Managers
+```sql
+SELECT Emp_Name FROM Employees
+WHERE Emp_ID NOT IN (
+    SELECT DISTINCT Manager_ID FROM Employees WHERE Manager_ID IS NOT NULL
+);
+-- Output: Charlie, David, Eve, Frank, Grace, Henry
+```
+
+### 15. Salary Greater Than Department Average
+```sql
+SELECT E.Emp_Name, E.Salary, D.Avg_Dept_Salary
+FROM Employees E
+JOIN (
+    SELECT Dept_ID, AVG(Salary) AS Avg_Dept_Salary
+    FROM Employees GROUP BY Dept_ID
+) D ON E.Dept_ID = D.Dept_ID
+WHERE E.Salary > D.Avg_Dept_Salary;
+```
+
+### 16. Pivot Table: Count employees per department in columns
+```sql
+SELECT
+    SUM(CASE WHEN Dept_ID = 1 THEN 1 ELSE 0 END) AS HR_Count,
+    SUM(CASE WHEN Dept_ID = 2 THEN 1 ELSE 0 END) AS IT_Count,
+    SUM(CASE WHEN Dept_ID = 3 THEN 1 ELSE 0 END) AS Finance_Count,
+    SUM(CASE WHEN Dept_ID = 4 THEN 1 ELSE 0 END) AS Sales_Count
+FROM Employees;
+```
+
+### 17. Delete Duplicate Emails (Classic LeetCode #196)
+```sql
+-- Keep the row with the smallest ID, delete the rest
+DELETE E1 FROM Employees E1
+INNER JOIN Employees E2
+WHERE E1.Emp_ID > E2.Emp_ID AND E1.Emp_Name = E2.Emp_Name;
+```
+
+---
+
+
 
 ## ⚡ 5-Minute Quick Revision
 

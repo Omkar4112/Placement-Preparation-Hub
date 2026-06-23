@@ -190,6 +190,168 @@ Primary Key: `{Student, Subject}`
 
 ---
 
+### ⭐⭐⭐⭐⭐ Fourth Normal Form (4NF)
+**Rule:** Must be in BCNF **AND** no non-trivial Multi-Valued Dependencies (MVD) exist.
+
+A **Multi-Valued Dependency (MVD)** `X →→ Y` means: for a given X, there exists a *set* of Y values that are independent of any other attribute Z.
+
+**Original Table:** `Student_Skills_Languages`
+*(A student can have multiple skills AND multiple languages. These are independent facts.)*
+
+| Student | Skill | Language |
+| :--- | :--- | :--- |
+| Alice | Python | English |
+| Alice | Python | Hindi |
+| Alice | SQL | English |
+| Alice | SQL | Hindi |
+
+**The Problem:** Every combination of Alice's skills and languages must be stored. Adding a new language requires adding rows for EVERY skill, causing massive redundancy.
+
+**The Fix (Decomposition):**
+- **Student_Skill Table:** (Alice, Python), (Alice, SQL)
+- **Student_Language Table:** (Alice, English), (Alice, Hindi)
+
+> [!IMPORTANT]
+> **When does 4NF apply?** Only when a table has two or more *independent* multi-valued attributes for the same primary key. This is fairly rare but asked in advanced interviews.
+
+---
+
+### ⭐⭐⭐⭐⭐ Fifth Normal Form (5NF) / Project-Join Normal Form (PJNF)
+**Rule:** Must be in 4NF **AND** every join dependency is implied by the candidate keys.
+
+5NF deals with **Join Dependencies**: a table cannot be reconstructed by joining smaller tables without losing or adding data.
+
+> [!TIP]
+> 5NF is rarely discussed in placements beyond the definition. The key answer: "A table is in 5NF if it cannot be decomposed further without losing information." This is the highest practical normal form.
+
+---
+
+### Summary: Normal Forms at a Glance
+
+```mermaid
+graph TD
+    UF[Unnormalized] --> NF1[1NF: Atomic Values]
+    NF1 --> NF2[2NF: No Partial FDs]
+    NF2 --> NF3[3NF: No Transitive FDs]
+    NF3 --> BCNF[BCNF: Every Determinant is a Super Key]
+    BCNF --> NF4[4NF: No Multi-Valued Dependencies]
+    NF4 --> NF5[5NF: No Join Dependencies]
+    style UF fill:#ffcdd2
+    style BCNF fill:#fff9c4
+    style NF5 fill:#c8e6c9
+```
+
+---
+
+## 4. Strong vs Weak Entities
+
+### Strong Entity
+An entity that can be uniquely identified on its own using its own attributes (has a primary key).
+- **Example:** `Employee` (identified by `Emp_ID`)
+
+### Weak Entity
+An entity that **cannot** be uniquely identified on its own. It depends on a Strong Entity for its existence.
+- **Example:** `Dependent` (a family member of an employee). The dependent "Riya" is only meaningful in the context of employee Alice.
+- **Identifying Relationship:** The relationship connecting a weak entity to its owning strong entity.
+- **Partial Key (Discriminator):** The attribute within the weak entity that distinguishes weak entity instances for the same strong entity. (e.g., `Dependent_Name` within the same `Emp_ID`).
+
+```text
+Strong Entity         Identifying Rel.     Weak Entity
++----------+          +----------+          +------------+
+| EMPLOYEE |=====1====| Has      |====M=====| DEPENDENT  |
++----------+          +----------+          +------------+
+| Emp_ID◆  |                                | Dep_Name~  |
+| Name     |                                | DOB        |
++----------+                                +------------+
+◆ = Primary Key    ~ = Partial Key (Discriminator)
+```
+
+> [!NOTE]
+> **Interview Note:** Weak entities are represented with a **double rectangle** in ER diagrams. The identifying relationship is a **double diamond**.
+
+---
+
+## 5. Participation Constraints (Total vs Partial)
+
+Participation constraints define whether ALL instances of an entity must participate in a relationship.
+
+| Type | Meaning | Notation | Example |
+| :--- | :--- | :--- | :--- |
+| **Total Participation** | Every instance MUST participate | Double line `==` | Every Employee MUST work in a Department |
+| **Partial Participation** | Not every instance needs to participate | Single line `—` | Not every Employee MANAGES a Department |
+
+```text
+EMPLOYEE ===(works_in)=== DEPARTMENT
+         total              partial
+(Every employee must       (A department can
+ work in a department)      exist without a manager)
+```
+
+---
+
+## 6. ER to Relational Schema Conversion (Full Walkthrough)
+
+Converting an ER diagram to actual SQL tables is a core interview skill.
+
+### Rules:
+1. **Each Strong Entity** → becomes a Table. Its attributes → columns. PK → Primary Key.
+2. **Each Weak Entity** → becomes a Table. Its Partial Key + Owner's PK = Composite Primary Key.
+3. **1:1 Relationship** → Add FK of one entity into the other (prefer the total participation side).
+4. **1:M Relationship** → Add FK of the '1' side into the 'M' side's table.
+5. **M:N Relationship** → Create a **new Bridge/Junction Table** with FKs from both entities as the composite PK.
+6. **Attributes of a Relationship** → Go into the Bridge Table.
+
+### Example: University ER → SQL
+
+**ER Diagram:**
+- `Student (S_ID, Name)` enrolls in `Course (C_ID, Title)` — M:N relationship with attribute `Grade`.
+
+**Conversion:**
+```sql
+-- Rule 1: Strong entities become tables
+CREATE TABLE Student (
+    S_ID INT PRIMARY KEY,
+    Name VARCHAR(50)
+);
+
+CREATE TABLE Course (
+    C_ID   INT PRIMARY KEY,
+    Title  VARCHAR(100)
+);
+
+-- Rule 5: M:N → Bridge Table
+-- Rule 6: Relationship attribute (Grade) goes into bridge table
+CREATE TABLE Enrollment (
+    S_ID    INT,
+    C_ID    INT,
+    Grade   CHAR(1),
+    PRIMARY KEY (S_ID, C_ID),
+    FOREIGN KEY (S_ID) REFERENCES Student(S_ID),
+    FOREIGN KEY (C_ID) REFERENCES Course(C_ID)
+);
+```
+
+---
+
+## 7. Denormalization
+
+**Denormalization** is the process of intentionally introducing redundancy into a normalized database to **improve read performance**.
+
+> [!NOTE]
+> **When to Denormalize:** In **OLAP** (Online Analytical Processing) / Data Warehousing systems where read performance is critical and data rarely changes. JOINs across many normalized tables are expensive for analytics.
+
+**Example:** Instead of joining `Employee`, `Department`, and `Location` tables every time for a report, store `Dept_Name` directly in the `Employee` table.
+
+| Approach | Use Case | Trade-off |
+| :--- | :--- | :--- |
+| **Normalization** | OLTP (Online Transaction Processing) — frequent INSERT/UPDATE/DELETE | Eliminates redundancy, slower reads due to JOINs |
+| **Denormalization** | OLAP (Data Warehousing, Reports, Analytics) | Faster reads, introduces redundancy, harder to maintain |
+
+> [!WARNING]
+> **Interview Trap:** Never say "Denormalization is bad." It is a valid and often necessary design choice for analytical systems. Star Schema and Snowflake Schema in data warehouses are intentionally denormalized.
+
+---
+
 # 🛑 CHAPTER END REVISIONS 🛑
 
 ## ⚡ 5-Minute Quick Revision
