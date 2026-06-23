@@ -4,6 +4,78 @@ Welcome to Module 1. In this module, we will explore the core concepts of React,
 
 ---
 
+## 🚀 React Features
+
+React provides several key features that make it a powerful choice for building modern web applications.
+
+### 1. Component-Based Architecture
+React applications are built using encapsulated components that manage their own state. These components are then composed to make complex UIs.
+- **Benefits**: Simplifies logic, easier debugging, and improved code maintainability.
+
+```mermaid
+graph TD
+    App[App Component] --> Header[Header Component]
+    App --> Main[Main Content Component]
+    App --> Footer[Footer Component]
+    Main --> Sidebar[Sidebar Component]
+    Main --> Feed[Feed Component]
+    Feed --> Post1[Post Component]
+    Feed --> Post2[Post Component]
+```
+
+### 2. Declarative UI
+You describe *what* the UI should look like for a given state, and React handles *how* to update the DOM to match that state.
+- **Benefits**: Makes code more predictable and easier to debug compared to imperative DOM manipulation.
+
+### 3. One-Way Data Binding
+Data in React flows in a single direction (from parent to child).
+- **Benefits**: Makes it easier to track data flow and find bugs. Changes in child components don't unexpectedly affect the parent's state without explicit callback functions.
+
+```mermaid
+sequenceDiagram
+    participant Parent as Parent Component
+    participant Child as Child Component
+    Parent->>Child: Passes Data (Props)
+    Child-->>Parent: Triggers Event (Callback)
+    Parent->>Parent: Updates State
+    Parent->>Child: Re-renders with New Data
+```
+
+### 4. Reusable Components
+Once you build a component (e.g., a Button or a Card), you can reuse it across different parts of your application.
+- **Benefits**: Speeds up development and ensures consistency in design and behavior.
+
+### 5. Single Page Application (SPA)
+React is widely used to build SPAs where the initial HTML page is loaded once, and subsequent interactions update the UI dynamically without full page reloads.
+- **Benefits**: Provides a seamless, app-like user experience.
+
+> [!NOTE]
+> **Interview Note: Why did React become so popular?**
+> React gained massive popularity because it solved the performance bottleneck of complex UI updates with the **Virtual DOM**, introduced a more intuitive **declarative programming paradigm**, and was backed by **Facebook (Meta)**, which provided strong community support and ecosystem growth.
+
+---
+
+## ⚔️ React vs Vanilla JavaScript
+
+When interviewing, you will often be asked to justify choosing React over plain (vanilla) JavaScript.
+
+### Detailed Comparison Table
+
+| Feature | Vanilla JavaScript | React |
+| :--- | :--- | :--- |
+| **DOM Manipulation** | Real DOM (Direct manipulation) | Virtual DOM (In-memory diffing) |
+| **Performance** | Slower for frequent UI updates | Faster for complex, dynamic updates |
+| **Reusability** | Difficult; often requires manual copy-pasting | High; component-based architecture |
+| **State Management** | Hard to track and manage across multiple elements | Centralized and predictable via hooks/state |
+| **Maintainability** | Can become "spaghetti code" as app grows | Highly maintainable modular structure |
+| **Development Speed** | Slower for large apps due to boilerplate | Faster due to reusable components and ecosystem |
+| **Scalability** | Hard to scale for large teams and features | Designed to scale efficiently |
+
+> [!TIP]
+> **Best Practice:** If you are building a simple, static website with minimal interactivity, Vanilla JS is often sufficient and avoids unnecessary overhead. For highly interactive, data-driven applications, React is the better choice.
+
+---
+
 ## 🔬 Real DOM vs. Virtual DOM
 
 The HTML DOM (Document Object Model) represents the UI of your application. Every time the state of the UI changes, the DOM needs to be updated to represent that change. However, updating the DOM directly is slow because the browser has to recalculate CSS layouts and repaint the screen.
@@ -101,6 +173,62 @@ function Header() {
   );
 }
 ```
+
+---
+
+## 🧩 JSX Expressions
+
+JSX allows you to embed JavaScript expressions inside your markup using curly braces `{}`. However, not everything is valid inside JSX.
+
+### What CAN be written inside JSX?
+Any valid **JavaScript expression** that evaluates to a value can be placed inside JSX.
+
+- **Variables:** `{name}`
+- **Arithmetic Expressions:** `{10 + 20}`
+- **Function Calls:** `{getUserName()}`
+- **Ternary Operators:** `{isLoggedIn ? 'Welcome' : 'Please Log In'}`
+- **Array Methods (like `map`):** `{items.map(item => <li key={item.id}>{item.name}</li>)}`
+
+### What CANNOT be written inside JSX?
+You cannot write **statements** (code that performs an action but does not produce a value directly) inside JSX curly braces.
+
+- ❌ `if / else` statements (Use Ternary or Logical `&&` instead)
+- ❌ `for / while` loops (Use array methods like `.map()` instead)
+- ❌ Object declarations (unless double curlies for styles like `{{ color: 'red' }}`)
+
+### 💡 Examples
+
+```jsx
+function UserProfile() {
+  const name = "Omkar";
+  const age = 22;
+  const isEmployed = true;
+  const skills = ["React", "JavaScript", "CSS"];
+
+  return (
+    <div className="profile">
+      {/* Variable */}
+      <h1>{name}</h1>
+      
+      {/* Arithmetic Expression */}
+      <p>Age next year: {age + 1}</p>
+      
+      {/* Ternary Operator */}
+      <p>Status: {isEmployed ? "Employed" : "Looking for opportunities"}</p>
+      
+      {/* Array Rendering */}
+      <ul>
+        {skills.map((skill, index) => (
+          <li key={index}>{skill}</li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+```
+
+> [!WARNING]
+> **Common Mistake:** Trying to render an entire object directly in JSX like `<div>{userObj}</div>` will throw an error: `Objects are not valid as a React child`. You must access specific properties like `<div>{userObj.name}</div>` or stringify it.
 
 ---
 
