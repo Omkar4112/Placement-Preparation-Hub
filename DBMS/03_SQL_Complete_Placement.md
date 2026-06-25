@@ -53,7 +53,32 @@ INSERT INTO Employees VALUES (108, 'Henry',   NULL,  3, 101);
 
 ---
 
-## 2. Basic SELECT Queries
+## 2. SQL Data Types
+
+Choosing the right data type is essential for storage efficiency and data integrity.
+
+| Category | Data Type | Description | Example |
+| :--- | :--- | :--- | :--- |
+| **Numeric** | `INT` | Whole number, 4 bytes | Age, Emp_ID |
+| | `FLOAT` | Approximate decimal, 4 bytes | GPS coordinates |
+| | `DECIMAL(p,s)` | Exact decimal, p total digits, s after dot | Salary, Price |
+| **String** | `CHAR(n)` | Fixed-length string, always uses n bytes | Gender 'M'/'F' |
+| | `VARCHAR(n)` | Variable-length string, max n bytes | Names, Emails |
+| | `TEXT` | Large text, no size limit | Blog content |
+| **Date/Time** | `DATE` | Date only: `YYYY-MM-DD` | Birth_Date |
+| | `TIME` | Time only: `HH:MM:SS` | Shift start time |
+| | `DATETIME` | Date + Time (no timezone) | Order_Timestamp |
+| | `TIMESTAMP` | Date + Time (auto timezone convert) | Last login |
+| **Boolean** | `BOOLEAN` | TRUE (1) or FALSE (0) | is_active |
+
+> [!TIP]
+> **CHAR vs VARCHAR:** Use `CHAR` when all values are the same length (like a 2-letter country code). Use `VARCHAR` for variable-length data (like names) — it saves space by not padding with blanks.
+>
+> **DATETIME vs TIMESTAMP:** `TIMESTAMP` is stored in UTC and converts to the session timezone. `DATETIME` has no timezone awareness. Use `TIMESTAMP` for "when did this happen" records.
+
+---
+
+## 3. Basic SELECT Queries
 
 ### SELECT
 ```sql
@@ -98,9 +123,23 @@ SELECT * FROM Employees ORDER BY Salary DESC FETCH FIRST 3 ROWS ONLY;
 ```
 **Output:** Top 3 — Alice (90000), Bob (80000), Eve (80000).
 
+### OFFSET
+Skips a number of rows before returning results. Used with LIMIT for **pagination**.
+```sql
+-- Skip the first 3 rows, return the next 3 (Page 2 of results)
+SELECT * FROM Employees ORDER BY Salary DESC LIMIT 3 OFFSET 3;
+-- Output: Charlie (75000), Frank (60000), Grace (60000)
+
+-- Shorthand (MySQL): LIMIT offset, count
+SELECT * FROM Employees ORDER BY Salary DESC LIMIT 3, 3;
+```
+> [!TIP]
+> **Pagination Formula:** `OFFSET = (page_number - 1) × page_size`
+> Page 1: LIMIT 10 OFFSET 0 | Page 2: LIMIT 10 OFFSET 10 | Page 3: LIMIT 10 OFFSET 20
+
 ---
 
-## 3. Logical & Filter Operators
+## 4. Logical & Filter Operators
 
 ### AND, OR, NOT
 ```sql
@@ -124,6 +163,15 @@ SELECT * FROM Employees WHERE Dept_ID IN (1, 4);
 ```
 **Output:** Alice (Dept 1), Frank (Dept 4), Grace (Dept 4).
 > Equivalent to: `WHERE Dept_ID = 1 OR Dept_ID = 4` — but cleaner.
+
+### NOT IN
+Excludes rows that match any value in a list.
+```sql
+SELECT * FROM Employees WHERE Dept_ID NOT IN (1, 4);
+-- Output: Bob, Charlie, Eve (Dept 2), David, Henry (Dept 3)
+```
+> [!WARNING]
+> **NOT IN and NULLs are dangerous!** If the list contains even one NULL, `NOT IN` returns **no rows** because SQL cannot confirm something is "not equal to NULL". Use `NOT EXISTS` or `LEFT JOIN ... WHERE IS NULL` as safer alternatives.
 
 ### BETWEEN
 Tests if a value lies within a range (inclusive on both ends).
@@ -166,9 +214,10 @@ SELECT * FROM Employees WHERE Salary IS NOT NULL;
 
 ---
 
-## 4. NULL Handling: COALESCE
+## 5. NULL Handling: COALESCE, IFNULL, NULLIF
 
-`COALESCE(value1, value2, ...)` returns the **first non-NULL** value in the list.
+### COALESCE
+`COALESCE(value1, value2, ...)` returns the **first non-NULL** value in the list. Works in all SQL databases.
 
 ```sql
 SELECT Emp_Name, COALESCE(Salary, 0) AS Salary
@@ -179,9 +228,32 @@ FROM Employees;
 > [!TIP]
 > **Memory Trick:** COALESCE = "Use this, or if null, use that."
 
+### IFNULL (MySQL specific)
+`IFNULL(value, replacement)` — returns `replacement` only if `value` is NULL. Simpler than COALESCE for 2-argument cases.
+
+```sql
+SELECT Emp_Name, IFNULL(Salary, 0) AS Salary FROM Employees;
+-- Same output as COALESCE example above. Henry shows 0.
+```
+
+> [!NOTE]
+> `IFNULL` is MySQL-specific. `COALESCE` is the ANSI SQL standard and works in all databases (MySQL, PostgreSQL, SQL Server, Oracle).
+
+### NULLIF
+`NULLIF(value1, value2)` — returns NULL if both values are **equal**; otherwise returns `value1`. Useful to avoid divide-by-zero errors.
+
+```sql
+-- Avoid divide-by-zero: if denominator is 0, return NULL instead of error
+SELECT Emp_Name, Salary / NULLIF(Dept_ID, 0) AS Result
+FROM Employees;
+
+-- Practical: Treat empty string '' the same as NULL
+SELECT NULLIF(Emp_Name, '') AS Clean_Name FROM Employees;
+```
+
 ---
 
-## 5. Aggregate Functions
+## 6. Aggregate Functions
 
 Aggregate functions operate on a **set of rows** and return a **single value**.
 
@@ -210,7 +282,7 @@ FROM Employees;
 
 ---
 
-## 6. GROUP BY & HAVING
+## 7. GROUP BY & HAVING
 
 ### GROUP BY
 Groups rows that have the same values and allows aggregate functions per group.
@@ -247,9 +319,22 @@ HAVING COUNT(*) > 1;
 > `WHERE` = Filter **rows** (before GROUP BY)
 > `HAVING` = Filter **groups** (after GROUP BY)
 
+### Multiple Column Grouping
+You can GROUP BY two or more columns to create more granular groups.
+
+```sql
+-- Group by Department AND Manager to see headcount per manager within each dept
+SELECT Dept_ID, Manager_ID, COUNT(*) AS Headcount, AVG(Salary) AS Avg_Salary
+FROM Employees
+WHERE Salary IS NOT NULL
+GROUP BY Dept_ID, Manager_ID;
+```
+
+**Output:** Each unique (Dept_ID, Manager_ID) combination becomes its own group. This is useful for analyzing data at a finer level of detail than single-column grouping.
+
 ---
 
-## 7. Constraints
+## 8. Constraints
 
 Constraints enforce rules on data in a table.
 
@@ -273,9 +358,68 @@ CREATE TABLE Orders (
 );
 ```
 
+### AUTO_INCREMENT / IDENTITY
+Automatically generates a unique integer for each new row. Used for surrogate primary keys.
+
+```sql
+-- MySQL: AUTO_INCREMENT
+CREATE TABLE Products (
+    Product_ID INT AUTO_INCREMENT PRIMARY KEY,
+    Name       VARCHAR(100) NOT NULL
+);
+INSERT INTO Products (Name) VALUES ('Laptop');  -- Product_ID = 1 (auto)
+INSERT INTO Products (Name) VALUES ('Mouse');   -- Product_ID = 2 (auto)
+
+-- SQL Server: IDENTITY(seed, increment)
+CREATE TABLE Products (
+    Product_ID INT IDENTITY(1,1) PRIMARY KEY,  -- Start at 1, increment by 1
+    Name       VARCHAR(100) NOT NULL
+);
+
+-- PostgreSQL: SERIAL or GENERATED ALWAYS AS IDENTITY
+CREATE TABLE Products (
+    Product_ID SERIAL PRIMARY KEY,
+    Name       VARCHAR(100) NOT NULL
+);
+```
+
+> [!TIP]
+> To reset the auto-increment counter in MySQL: `ALTER TABLE Products AUTO_INCREMENT = 1;`
+
 ---
 
-## 8. DDL: ALTER, DROP, TRUNCATE
+## 9. DDL: CREATE, ALTER, DROP, TRUNCATE
+
+### CREATE DATABASE
+```sql
+CREATE DATABASE CompanyDB;
+
+-- Create only if it doesn't exist (safe re-run)
+CREATE DATABASE IF NOT EXISTS CompanyDB;
+
+-- Use the database
+USE CompanyDB;
+```
+
+### CREATE TABLE
+```sql
+-- Full syntax with all constraint types
+CREATE TABLE Employees (
+    Emp_ID     INT            AUTO_INCREMENT PRIMARY KEY,
+    Emp_Name   VARCHAR(50)    NOT NULL,
+    Email      VARCHAR(100)   UNIQUE,
+    Salary     DECIMAL(10,2)  DEFAULT 30000.00 CHECK (Salary >= 0),
+    Dept_ID    INT,
+    Hire_Date  DATE           DEFAULT (CURDATE()),
+    FOREIGN KEY (Dept_ID) REFERENCES Departments(Dept_ID) ON DELETE SET NULL
+);
+
+-- Create table from another table's structure + data
+CREATE TABLE Employees_Backup AS SELECT * FROM Employees;
+
+-- Create table structure only (no data)
+CREATE TABLE Employees_Empty AS SELECT * FROM Employees WHERE 1=0;
+```
 
 ### ALTER
 Modifies the structure of an existing table.
@@ -284,11 +428,18 @@ Modifies the structure of an existing table.
 ALTER TABLE Employees ADD Email VARCHAR(100);
 
 -- Modify column data type
-ALTER TABLE Employees MODIFY Emp_Name VARCHAR(100);  -- MySQL
-ALTER TABLE Employees ALTER COLUMN Emp_Name VARCHAR(100);  -- SQL Server
+ALTER TABLE Employees MODIFY Emp_Name VARCHAR(100);          -- MySQL
+ALTER TABLE Employees ALTER COLUMN Emp_Name VARCHAR(100);    -- SQL Server
+
+-- Rename a column (MySQL 8.0+)
+ALTER TABLE Employees RENAME COLUMN Emp_Name TO Full_Name;
 
 -- Drop a column
 ALTER TABLE Employees DROP COLUMN Email;
+
+-- Rename the table
+RENAME TABLE Employees TO Staff;        -- MySQL
+EXEC sp_rename 'Employees', 'Staff';   -- SQL Server
 ```
 
 ### DROP vs TRUNCATE
@@ -298,13 +449,16 @@ TRUNCATE TABLE Employees;
 
 -- Permanently destroy the entire table (structure + data)
 DROP TABLE Employees;
+
+-- Safe drop (no error if table doesn't exist)
+DROP TABLE IF EXISTS Employees;
 ```
 
 See the full comparison table in Chapter 1.
 
 ---
 
-## 9. DML: UPDATE & DELETE
+## 10. DML: UPDATE & DELETE
 
 ### UPDATE
 ```sql
@@ -329,7 +483,7 @@ DELETE FROM Employees WHERE Dept_ID = 3;
 
 ---
 
-## 10. JOINS (Complete Guide)
+## 11. JOINS (Complete Guide)
 
 ```text
          [ SQL JOINS ]
@@ -412,7 +566,7 @@ LEFT JOIN Employees M ON E.Manager_ID = M.Emp_ID;
 
 ---
 
-## 11. Set Operations
+## 12. Set Operations
 
 Set operations combine results of two or more SELECT queries. Both queries must have the same number of columns and compatible data types.
 
@@ -462,7 +616,7 @@ SELECT Dept_ID FROM Employees;
 
 ---
 
-## 12. Subqueries: EXISTS, ANY, ALL
+## 13. Subqueries: EXISTS, ANY, ALL
 
 ### EXISTS
 Returns TRUE if the subquery returns at least one row.
@@ -497,7 +651,7 @@ WHERE Salary > ALL (SELECT Salary FROM Employees WHERE Dept_ID = 3 AND Salary IS
 
 ---
 
-## 13. CASE Expression
+## 14. CASE Expression
 
 `CASE` is SQL's IF-THEN-ELSE. Returns a value based on conditions.
 
@@ -526,7 +680,7 @@ FROM Employees;
 
 ---
 
-## 14. Views
+## 15. Views
 
 A **View** is a virtual table based on a stored SELECT query. It does not store data physically.
 
@@ -553,9 +707,53 @@ DROP VIEW IT_Employees;
 > [!IMPORTANT]
 > A view is NOT a physical copy of data. Every time you query a view, the underlying SELECT runs again.
 
+### UPDATE VIEW (CREATE OR REPLACE)
+Modify an existing view's definition without dropping it first.
+
+```sql
+-- Update the view to also include Dept_ID
+CREATE OR REPLACE VIEW IT_Employees AS
+SELECT Emp_Name, Salary, Dept_ID
+FROM Employees
+WHERE Dept_ID = 2;
+
+-- SQL Server equivalent
+ALTER VIEW IT_Employees AS
+SELECT Emp_Name, Salary, Dept_ID
+FROM Employees
+WHERE Dept_ID = 2;
+```
+
+> [!NOTE]
+> A **simple view** (based on a single table, no GROUP BY/DISTINCT/aggregate) is **updatable** — you can run INSERT/UPDATE/DELETE on it and the underlying table is modified. Complex views are read-only.
+
+### Materialized View
+A **Materialized View** physically stores the result of the query on disk (unlike a regular view which re-executes on every query).
+
+| Feature | Regular View | Materialized View |
+| :--- | :--- | :--- |
+| **Storage** | No physical storage | Physically stored on disk |
+| **Performance** | Re-executes query each time | Reads from stored snapshot (very fast) |
+| **Data freshness** | Always current | Can be stale (needs REFRESH) |
+| **Use case** | Simple abstraction/security | Expensive aggregations, reporting |
+
+```sql
+-- PostgreSQL syntax (MySQL does not support Materialized Views natively)
+CREATE MATERIALIZED VIEW dept_salary_summary AS
+SELECT Dept_ID, COUNT(*) AS Headcount, AVG(Salary) AS Avg_Salary
+FROM Employees
+GROUP BY Dept_ID;
+
+-- Refresh the data manually when needed
+REFRESH MATERIALIZED VIEW dept_salary_summary;
+```
+
+> [!TIP]
+> **Interview Answer:** "Materialized Views are used in data warehousing and reporting where query results are large and complex but data doesn't need to be real-time. They trade freshness for speed."
+
 ---
 
-## 15. Indexes
+## 16. Indexes
 
 An **Index** is a database object that speeds up data retrieval at the cost of extra storage and slower writes.
 
@@ -578,7 +776,7 @@ DROP INDEX idx_salary;               -- Oracle / PostgreSQL
 
 ---
 
-## 16. Window Functions ⭐⭐⭐⭐⭐
+## 17. Window Functions ⭐⭐⭐⭐⭐
 
 Window functions perform calculations across a **window** (set of related rows) without collapsing results like `GROUP BY`.
 
@@ -643,7 +841,7 @@ FROM Employees WHERE Salary IS NOT NULL;
 
 ---
 
-## 17. ⭐⭐⭐⭐⭐ Classic Placement Query Patterns
+## 18. ⭐⭐⭐⭐⭐ Classic Placement Query Patterns
 
 These are the most-asked SQL coding questions in every placement interview.
 
@@ -759,7 +957,7 @@ WHERE Salary = LAG(Salary) OVER (ORDER BY Emp_ID);
 
 ---
 
-## 18. String Functions (MySQL)
+## 19. String Functions (MySQL)
 
 String functions are essential for data cleaning and transformation. Highly tested in coding rounds.
 
@@ -797,7 +995,7 @@ SELECT LPAD(Emp_ID, 5, '0') AS Padded_ID FROM Employees;
 
 ---
 
-## 19. Date and Time Functions (MySQL)
+## 20. Date and Time Functions (MySQL)
 
 | Function | Description | Example | Output |
 | :--- | :--- | :--- | :--- |
@@ -827,7 +1025,7 @@ SELECT DATE_FORMAT(CURDATE(), '%d/%m/%Y') AS Formatted_Date;
 
 ---
 
-## 20. Mathematical Functions
+## 21. Mathematical Functions
 
 | Function | Description | Example | Output |
 | :--- | :--- | :--- | :--- |
@@ -850,7 +1048,7 @@ SELECT Emp_Name FROM Employees WHERE MOD(Emp_ID, 2) = 1;
 
 ---
 
-## 21. Transactions: BEGIN, COMMIT, ROLLBACK, SAVEPOINT
+## 22. Transactions: BEGIN, COMMIT, ROLLBACK, SAVEPOINT
 
 A **Transaction** is a sequence of SQL statements treated as a single unit of work.
 
@@ -892,7 +1090,7 @@ COMMIT;  -- Now only the INSERT is committed
 
 ---
 
-## 22. CTEs (Common Table Expressions) — WITH Clause
+## 23. CTEs (Common Table Expressions) — WITH Clause
 
 A **CTE** is a named temporary result set that exists only for the duration of a single query. It makes complex queries more readable.
 
@@ -974,7 +1172,7 @@ SELECT Emp_ID, Emp_Name, Level FROM OrgChart;
 
 ---
 
-## 23. Stored Procedures
+## 24. Stored Procedures
 
 A **Stored Procedure** is a precompiled, reusable block of SQL stored in the database. Call it with `CALL`.
 
@@ -1032,7 +1230,7 @@ SELECT @count;  -- Output: 3
 
 ---
 
-## 24. User-Defined Functions (UDF)
+## 25. User-Defined Functions (UDF)
 
 A **Function** is similar to a Stored Procedure but MUST return a single value and can be used inside a SELECT statement.
 
@@ -1068,7 +1266,7 @@ FROM Employees;
 
 ---
 
-## 25. Triggers
+## 26. Triggers
 
 A **Trigger** is a special stored procedure that automatically fires in response to a DML event (`INSERT`, `UPDATE`, `DELETE`) on a table.
 
@@ -1117,7 +1315,7 @@ DELIMITER ;
 
 ---
 
-## 26. More Window Functions: NTILE, FIRST_VALUE, LAST_VALUE
+## 27. More Window Functions: NTILE, FIRST_VALUE, LAST_VALUE
 
 ### NTILE(n)
 Divides rows into `n` equal buckets and assigns a bucket number to each row.
@@ -1156,7 +1354,7 @@ FROM Employees WHERE Salary IS NOT NULL;
 
 ---
 
-## 27. ROLLUP and CUBE (Subtotals and Grand Totals)
+## 28. ROLLUP and CUBE (Subtotals and Grand Totals)
 
 ### GROUP BY WITH ROLLUP
 Adds subtotals and a grand total row automatically.
@@ -1182,7 +1380,7 @@ GROUP BY Dept_ID WITH ROLLUP;
 
 ---
 
-## 28. EXPLAIN — Query Optimization
+## 29. EXPLAIN — Query Optimization
 
 `EXPLAIN` shows how MySQL executes a query — essential for performance tuning interviews.
 
@@ -1211,7 +1409,82 @@ EXPLAIN SELECT * FROM Employees WHERE Dept_ID = 2;
 
 ---
 
-## 29. More Classic Placement Query Patterns
+## 30. Security: Users, Roles, GRANT & REVOKE (DCL)
+
+Database security controls WHO can access WHAT data and perform WHICH operations. This is managed with **DCL (Data Control Language)**.
+
+### Creating Users
+```sql
+-- MySQL: Create a new database user
+CREATE USER 'john'@'localhost' IDENTIFIED BY 'SecurePass123!';
+CREATE USER 'app_user'@'%' IDENTIFIED BY 'AppPass!';
+-- '%' = can connect from any host; 'localhost' = only from local machine
+```
+
+### GRANT — Give Permissions
+```sql
+-- Grant specific privileges on a specific table
+GRANT SELECT, INSERT ON CompanyDB.Employees TO 'john'@'localhost';
+
+-- Grant all privileges on an entire database
+GRANT ALL PRIVILEGES ON CompanyDB.* TO 'app_user'@'%';
+
+-- Grant SELECT on all databases (read-only analyst user)
+GRANT SELECT ON *.* TO 'analyst'@'localhost';
+
+-- Allow the user to pass their privileges to others (WITH GRANT OPTION)
+GRANT SELECT ON CompanyDB.* TO 'john'@'localhost' WITH GRANT OPTION;
+
+-- Apply changes immediately
+FLUSH PRIVILEGES;
+```
+
+### REVOKE — Remove Permissions
+```sql
+-- Remove specific privileges
+REVOKE INSERT ON CompanyDB.Employees FROM 'john'@'localhost';
+
+-- Remove all privileges
+REVOKE ALL PRIVILEGES ON CompanyDB.* FROM 'john'@'localhost';
+
+-- Drop the user entirely
+DROP USER 'john'@'localhost';
+```
+
+### Roles (MySQL 8.0+ / PostgreSQL)
+Roles are **named groups of privileges**. Instead of granting permissions to each user individually, assign a role.
+
+```sql
+-- Create roles
+CREATE ROLE 'read_only_role';
+CREATE ROLE 'developer_role';
+
+-- Assign privileges to the role
+GRANT SELECT ON CompanyDB.* TO 'read_only_role';
+GRANT SELECT, INSERT, UPDATE, DELETE ON CompanyDB.* TO 'developer_role';
+
+-- Assign the role to a user
+GRANT 'read_only_role' TO 'john'@'localhost';
+GRANT 'developer_role' TO 'jane'@'localhost';
+
+-- Activate the role for the session
+SET DEFAULT ROLE 'read_only_role' TO 'john'@'localhost';
+```
+
+**Privilege Levels (from broadest to narrowest):**
+| Privilege Level | Syntax | Scope |
+| :--- | :--- | :--- |
+| Global | `ON *.*` | All databases |
+| Database | `ON db_name.*` | All tables in one database |
+| Table | `ON db_name.table_name` | One specific table |
+| Column | `ON db_name.table(col)` | One specific column |
+
+> [!IMPORTANT]
+> **Interview Answer:** "DCL (Data Control Language) manages database access permissions. `GRANT` gives privileges and `REVOKE` removes them. Roles simplify permission management by grouping privileges that can be assigned to multiple users at once."
+
+---
+
+## 31. More Classic Placement Query Patterns
 
 ### 9. Running Total (Cumulative Sum)
 ```sql
@@ -1282,7 +1555,7 @@ SELECT
 FROM Employees;
 ```
 
-### 17. Delete Duplicate Emails (Classic LeetCode #196)
+### 18. Delete Duplicate Emails (Classic LeetCode #196)
 ```sql
 -- Keep the row with the smallest ID, delete the rest
 DELETE E1 FROM Employees E1

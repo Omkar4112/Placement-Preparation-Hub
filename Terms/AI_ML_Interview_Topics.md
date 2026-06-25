@@ -5,28 +5,38 @@
 
 ## 📌 Topics Covered
 
-| # | Topic |
-|---|---|
-| 1 | Machine Learning Basics |
-| 2 | Classification |
-| 3 | Classification vs Regression |
-| 4 | Features vs Labels |
-| 5 | Training Data vs Testing Data |
-| 6 | Accuracy |
-| 7 | Precision |
-| 8 | Recall |
-| 9 | F1 Score |
-| 10 | XGBoost |
-| 11 | NLP Basics |
-| 12 | Tokenization |
-| 13 | Sentiment Analysis |
-| 14 | Text Classification |
-| 15 | LLM Basics |
-| 16 | Prompt Engineering |
-| 17 | Hallucination |
-| 18 | RAG |
-| 19 | Fine-Tuning |
-| — | Revision Sheet + Top 30 Q&A |
+| # | Topic | Priority |
+|---|---|---|
+| 1 | Machine Learning Basics — AI vs ML vs DL, Types, Problems | 🔴 Must Know |
+| 2 | Data Preprocessing — Normalization, Missing Values, Feature Engineering | 🔴 Must Know |
+| 3 | Supervised Algorithms — Linear/Logistic Regression, Decision Tree, RF, KNN, SVM, Naive Bayes | 🔴 Must Know |
+| 4 | Unsupervised — K-Means, PCA, Hierarchical, Anomaly Detection | 🟡 Very Likely |
+| 5 | Classification vs Regression | 🔴 Must Know |
+| 6 | Features vs Labels | 🔴 Must Know |
+| 7 | Training / Validation / Test Sets | 🔴 Must Know |
+| 8 | Confusion Matrix | 🟡 Very Likely |
+| 9 | Accuracy | 🔴 Must Know |
+| 10 | Precision | 🔴 Must Know |
+| 11 | Recall | 🔴 Must Know |
+| 12 | F1 Score | 🔴 Must Know |
+| 13 | ROC Curve & AUC | 🟡 Very Likely |
+| 14 | MSE, RMSE, MAE | 🟡 Very Likely |
+| 15 | Bias-Variance Tradeoff & Regularization | 🔴 Must Know |
+| 16 | Optimization & Gradient Descent | 🟡 Very Likely |
+| 17 | Neural Networks & Deep Learning | 🔵 Good to Know |
+| 18 | XGBoost | 🔴 Must Know |
+| 19 | NLP Basics | 🟡 Very Likely |
+| 20 | Tokenization | 🟡 Very Likely |
+| 21 | Sentiment Analysis | 🟡 Very Likely |
+| 22 | Text Classification | 🟡 Very Likely |
+| 23 | LLM Basics | 🔵 Good to Know |
+| 24 | Prompt Engineering | 🔵 Good to Know |
+| 25 | Hallucination | 🔵 Good to Know |
+| 26 | RAG | 🔵 Good to Know |
+| 27 | Fine-Tuning | 🔵 Good to Know |
+| 28 | Generative AI & Agentic AI | 🔵 Good to Know |
+| 29 | Practical ML — Imbalance, Leakage, Hyperparameter Tuning | 🟡 Very Likely |
+| — | Revision Sheet + Top 30 Q&A | |
 
 ---
 
@@ -69,10 +79,388 @@ You give examples, the computer finds patterns on its own, and uses those patter
 | **Supervised** | Input + correct answer (labelled) | Predict output | Disease: Yes/No |
 | **Unsupervised** | Input only (no labels) | Find hidden groups | Customer segments |
 | **Reinforcement** | Rewards and penalties | Maximize reward | Game AI, robots |
+| **Semi-supervised** | Mostly unlabelled + some labelled | Predict output | Web content classification |
 
 **Overfitting** = Model performs great on training data but poorly on new data.
 It memorised instead of learning general patterns.
 Fix: more data, simpler model, regularization, cross-validation.
+
+---
+
+### AI vs ML vs DL vs Data Science
+
+| Term | What it is | Scope |
+|---|---|---|
+| **AI** (Artificial Intelligence) | Any technique making machines act smart | Broadest |
+| **ML** (Machine Learning) | AI that learns patterns from data | Subset of AI |
+| **DL** (Deep Learning) | ML using many-layered neural networks | Subset of ML |
+| **Data Science** | Extracting insights from data using stats + ML + domain knowledge | Overlaps all |
+
+```
+           Artificial Intelligence
+         ┌─────────────────────────┐
+         │    Machine Learning     │
+         │  ┌───────────────────┐  │
+         │  │   Deep Learning   │  │
+         │  └───────────────────┘  │
+         └─────────────────────────┘
+```
+
+**30-Second Interview Answer:**
+> AI is the broad field of making machines smart. ML is a subset where machines learn from data.
+> Deep Learning is a subset of ML using neural networks with many layers.
+> Data Science combines ML with statistics, domain knowledge, and data engineering to extract business insights.
+
+**One-Line Revision:**
+> AI ⊃ ML ⊃ DL. Data Science uses all of them to extract insights.
+
+---
+
+## 2. Data Preprocessing — Normalization, Standardization, Missing Values, Feature Engineering
+
+### Normalization vs Standardization
+
+| | Normalization (Min-Max Scaling) | Standardization (Z-score) |
+|---|---|---|
+| **Formula** | (x − min) / (max − min) | (x − mean) / std_deviation |
+| **Range** | 0 to 1 | No fixed range (mean=0, std=1) |
+| **Use when** | Algorithm sensitive to scale (KNN, SVM, Neural Networks) | Data has outliers; Logistic Regression, PCA |
+| **Example** | Age [20–60] → [0.0–1.0] | Salary [30k–200k] → standardized around 0 |
+
+> [!TIP]
+> **Rule of Thumb:** Use Normalization when you know the min/max. Use Standardization when you don't or when outliers exist.
+
+### Handling Missing Values
+
+| Strategy | How | When to Use |
+|---|---|---|
+| **Remove rows** | Drop rows with missing values | When missing data is <5% and random |
+| **Mean/Median imputation** | Replace with column average or median | Numerical columns without extreme skew |
+| **Mode imputation** | Replace with most common value | Categorical columns |
+| **Model-based imputation** | Predict missing value using other columns | When missingness has patterns |
+| **Flag + fill** | Add is_missing column, fill with 0 | When missingness itself is informative |
+
+### Feature Engineering
+**Feature Engineering** is creating new or better input features from raw data to improve model performance.
+
+**Examples:**
+```
+Raw: Birth_Date → Engineered: Age (2025 - Birth_Year)
+Raw: Login_Time, Logout_Time → Engineered: Session_Duration
+Raw: Address → Engineered: City, State, Pincode (separate columns)
+Raw: Price, Quantity → Engineered: Total_Revenue = Price × Quantity
+```
+
+**Why it matters:**
+- Better features = better model accuracy, even with a simple algorithm
+- Captures domain knowledge that raw data doesn't express directly
+
+**One-Line Revision:**
+> Feature Engineering = create smarter inputs from raw data to give the model more signal.
+
+### Curse of Dimensionality
+As the number of features (dimensions) increases, the amount of data needed to cover the feature space grows **exponentially**.
+
+**Real-World Analogy:**
+> Imagine finding someone on a 1D number line → easy.
+> On a 2D map → harder.
+> In a 3D building → harder still.
+> With 100 dimensions → virtually impossible without enormous data.
+
+**Problems caused:**
+- Models need exponentially more data to generalise
+- Most data points become "distant" from each other — distance metrics lose meaning
+- KNN and SVM suffer the most
+
+**Solution:** Dimensionality Reduction — PCA, feature selection, removing correlated features.
+
+**One-Line Revision:**
+> More features = more data needed. Too many features hurt model performance. Use PCA to reduce.
+
+---
+
+## 3. Supervised Learning Algorithms
+
+### Linear Regression
+**Task:** Predict a continuous number (price, temperature, salary).
+
+**Equation:** `y = mx + b` (one feature) or `y = w₁x₁ + w₂x₂ + ... + b` (many features)
+
+**How it works:** Finds the best-fit line through the data that minimises prediction error.
+
+**Cost Function (MSE):** Measures average squared error between predicted and actual values. Model minimises this.
+
+**Assumptions:**
+1. Linear relationship between X and y
+2. Residuals (errors) are normally distributed
+3. No multicollinearity (features not highly correlated with each other)
+4. Homoscedasticity — variance of errors is constant
+
+**One-Line Revision:**
+> Linear Regression = fit a line to predict a number. Minimises MSE.
+
+---
+
+### Logistic Regression
+**Task:** Binary Classification (Yes/No, Spam/Ham).
+
+**Key idea:** Despite the name "Regression", it is used for **classification**.
+It uses the **sigmoid function** to output a probability between 0 and 1.
+
+```
+Sigmoid: σ(z) = 1 / (1 + e^(-z))
+
+Output > 0.5 → Class 1 (Yes/Positive)
+Output ≤ 0.5 → Class 0 (No/Negative)
+```
+
+**Threshold:** Default is 0.5, but you can change it.
+- Lower threshold → More positives caught (higher Recall, lower Precision)
+- Higher threshold → Fewer false alarms (higher Precision, lower Recall)
+
+**One-Line Revision:**
+> Logistic Regression = classifies using sigmoid function. Outputs probability, uses threshold to decide class.
+
+---
+
+### Decision Tree
+**Task:** Classification or Regression.
+
+**How it works:** Splits data into branches by asking yes/no questions about features. Each split tries to separate classes as cleanly as possible.
+
+**Splitting Criteria:**
+
+| Criterion | What it measures | Used in |
+|---|---|---|
+| **Gini Impurity** | How often a random sample would be misclassified | Classification (default in sklearn) |
+| **Entropy / Information Gain** | How much "disorder" is reduced by the split | Classification |
+| **MSE reduction** | How much variance is reduced | Regression trees |
+
+```
+Gini = 1 − Σ(pᵢ²)    [0 = pure, 0.5 = most impure for binary]
+Entropy = −Σ(pᵢ log₂ pᵢ)  [0 = pure]
+Information Gain = Entropy(parent) − weighted avg Entropy(children)
+```
+
+**Pros:** Easy to interpret, no scaling needed, handles missing values
+**Cons:** Overfits easily (fix: limit depth, pruning, use ensemble)
+
+**One-Line Revision:**
+> Decision Tree = asks yes/no questions. Splits using Gini or Information Gain. Overfits easily.
+
+---
+
+### Random Forest
+**Task:** Classification or Regression. An **ensemble** method.
+
+**How it works (Bagging):**
+1. Draw multiple random samples from training data (with replacement) → Bootstrapping
+2. Build one Decision Tree on each sample, using a **random subset of features** at each split
+3. For classification: take **majority vote** across all trees. For regression: take **average**
+
+**Why random features?** Prevents all trees from looking the same. Creates diverse, uncorrelated trees.
+
+**Key points:**
+- Reduces overfitting (averaging reduces variance)
+- More robust than a single Decision Tree
+- Slower than a single tree but much more accurate
+- Provides feature importance
+
+**Bagging vs Boosting:**
+
+| | Bagging (Random Forest) | Boosting (XGBoost) |
+|---|---|---|
+| **Tree building** | Parallel (independent) | Sequential (each fixes previous) |
+| **Goal** | Reduce variance | Reduce bias |
+| **Risk** | Slight underfitting | Slight overfitting without tuning |
+
+**One-Line Revision:**
+> Random Forest = many Decision Trees trained on random subsets, results averaged. Reduces overfitting.
+
+---
+
+### KNN (K-Nearest Neighbors)
+**Task:** Classification or Regression. A **lazy learner** (no training phase — just stores data).
+
+**How it works:**
+1. Given a new point, find the K closest training points (using distance — usually Euclidean)
+2. For classification: take majority vote among K neighbors
+3. For regression: take average of K neighbors' values
+
+**Choosing K:**
+- Small K (e.g., K=1) → sensitive to noise, overfits
+- Large K → smoother but may miss local patterns, underfits
+- Best practice: try odd values (avoid ties), use cross-validation
+
+**Why "lazy learner"?** It doesn't build a model during training — just memorises the data.
+All computation happens at prediction time → slow for large datasets.
+
+**Needs:** Feature scaling (Normalization/Standardization) — distance is scale-sensitive.
+
+**One-Line Revision:**
+> KNN = find K nearest neighbors, take their vote. Lazy learner. Needs feature scaling.
+
+---
+
+### SVM (Support Vector Machine)
+**Task:** Classification (and regression).
+
+**Core idea:** Find the **hyperplane** that best separates two classes with the **maximum margin**.
+
+```
+Class A  ●  ●                      ● ● Class B
+              ●  | (hyperplane) |  ●
+         support  margin   support
+         vector           vector
+```
+
+- **Hyperplane:** Decision boundary separating classes
+- **Margin:** Distance between hyperplane and the nearest data points of each class. SVM maximises this.
+- **Support Vectors:** The data points closest to the hyperplane — they "support" (define) it
+
+**Kernel Trick:**
+When data is not linearly separable in original space, transform it into a higher dimension where it IS separable — without computing the transformation explicitly.
+
+| Kernel | Use case |
+|---|---|
+| **Linear** | Data linearly separable |
+| **RBF (Gaussian)** | Most common, works for complex boundaries |
+| **Polynomial** | Image recognition |
+
+**Pros:** Effective in high dimensions, robust with small datasets
+**Cons:** Slow on large datasets, hard to interpret
+
+**One-Line Revision:**
+> SVM = finds hyperplane with maximum margin. Uses kernel trick for non-linear data.
+
+---
+
+### Naive Bayes
+**Task:** Classification — especially text classification.
+
+**Core idea:** Uses **Bayes' Theorem** to calculate the probability of each class, then picks the most probable one.
+
+```
+Bayes' Theorem:
+P(Class | Features) = P(Features | Class) × P(Class) / P(Features)
+```
+
+**"Naive" assumption:** All features are **conditionally independent** given the class.
+In reality they rarely are, but it still works surprisingly well for text.
+
+**Why popular for NLP?**
+- Works great with word counts (bag of words)
+- Very fast — no iterative training
+- Handles high-dimensional data (thousands of words)
+
+**Example:**
+> Is this email Spam? Given it contains "discount", "offer", "click" → P(Spam | these words) is very high.
+
+**One-Line Revision:**
+> Naive Bayes = Bayes theorem + assumes features are independent. Best for text classification.
+
+---
+
+## 4. Unsupervised Learning
+
+### K-Means Clustering
+**Task:** Group unlabelled data into K clusters.
+
+**How it works:**
+1. Pick K random points as initial centroids
+2. Assign each data point to its nearest centroid
+3. Recalculate each centroid as the mean of its assigned points
+4. Repeat steps 2–3 until centroids stop moving (convergence)
+
+**Choosing K — The Elbow Method:**
+Plot Within-Cluster Sum of Squares (WCSS) vs K.
+The "elbow" (where the curve bends sharply) = optimal K.
+
+```
+WCSS
+│\            ← Keep going, big improvement
+│  \          
+│   \         
+│    ●←─── Elbow: this is optimal K
+│      \_ _ _ _ _ _ _
+└──────────────────── K
+```
+
+**Limitations:**
+- Must specify K in advance
+- Sensitive to outliers (centroid pulled toward them)
+- Only works well for spherical clusters
+
+**One-Line Revision:**
+> K-Means = assign points to K centroids, recalculate until stable. Use Elbow Method to pick K.
+
+---
+
+### Hierarchical Clustering
+**Task:** Build a hierarchy of clusters — no need to specify K in advance.
+
+**Types:**
+- **Agglomerative (bottom-up):** Start with each point as its own cluster, merge closest pairs repeatedly until one cluster remains.
+- **Divisive (top-down):** Start with all points in one cluster, split recursively.
+
+**Dendrogram:** A tree diagram showing the merge hierarchy. Cut at any height to get any number of clusters.
+
+```
+         ┌──────────────────┐
+         │                  │
+      ┌──┴──┐            ┌──┴──┐
+      │     │            │     │
+     A B   C D          E F   G
+```
+
+**Pros:** No need to specify K, reveals hierarchical structure
+**Cons:** Slow for large data (O(n²) or O(n³))
+
+**One-Line Revision:**
+> Hierarchical Clustering = build a tree of merges (dendrogram). Cut tree to get any K clusters.
+
+---
+
+### PCA (Principal Component Analysis)
+**Task:** Dimensionality Reduction — reduce number of features while retaining most information.
+
+**How it works:**
+1. Find directions (principal components) of maximum variance in the data
+2. Project data onto the top N components
+3. Discard the rest — you've reduced dimensions while keeping most variance
+
+**Why use it?**
+- Removes redundant/correlated features
+- Speeds up training
+- Helps visualise high-dimensional data (reduce to 2D/3D for plotting)
+- Reduces curse of dimensionality
+
+**Variance Explained:**
+Each principal component explains some % of total variance. Keep enough components to explain 90–95% of variance.
+
+**One-Line Revision:**
+> PCA = reduce dimensions by projecting onto directions of maximum variance. Keeps 95% of information.
+
+---
+
+### Anomaly Detection
+**Task:** Find data points that are significantly different from the norm (outliers).
+
+**Real-world uses:**
+- Fraud detection (unusual transaction patterns)
+- Network intrusion detection (unusual traffic)
+- Manufacturing defects (products outside tolerance)
+- Healthcare (unusual vital sign readings)
+
+**Methods:**
+| Method | How |
+|---|---|
+| **Statistical (Z-score, IQR)** | Flag points far from mean/median |
+| **Isolation Forest** | Anomalies are easier to isolate — shorter paths in random trees |
+| **Autoencoder** | Normal data reconstructs well; anomalies have high reconstruction error |
+
+**One-Line Revision:**
+> Anomaly Detection = find outliers. Used in fraud detection, system monitoring, healthcare.
 
 ---
 
@@ -184,40 +572,92 @@ Age | Blood Pressure | Sugar | BMI  →  Disease: Yes / No
 
 ---
 
-## 5. Training Data vs Testing Data
+## 7. Training, Validation & Test Sets
 
 **Easy Definition:**
-**Training data** = examples the model learns from.
-**Testing data** = new unseen examples used to check how well it actually learned.
+- **Training data** = examples the model learns from (fits its parameters)
+- **Validation data** = held-out set used to tune the model and choose hyperparameters during development
+- **Test data** = completely unseen data used only at the end to report final real-world performance
 
 **Why it is used:**
 If you test on the same data you trained on → model gets 100% but hasn't really learned.
 The split reveals real performance on unseen data.
 
+**The Three-Way Split:**
+```
+All Data (100%)
+    ↓
+├── Training Set (70%)    ← Model learns here
+├── Validation Set (15%)  ← Tune hyperparameters, pick best model
+└── Test Set (15%)        ← Final evaluation ONLY (touch once!)
+```
+
+**Purpose of each:**
+| Set | Used by | Purpose |
+|---|---|---|
+| **Training** | Model | Fit weights/parameters |
+| **Validation** | You (developer) | Tune model, compare algorithms |
+| **Test** | Final evaluation | Honest estimate of real-world performance |
+
 **Real-World Example:**
-> Like a student studying from a textbook (training) and then sitting for an exam with new questions (testing).
-> Getting 100% on practice questions doesn't mean you'll ace the real exam.
+> Like a student studying from a textbook (training), doing practice tests (validation), and then sitting the final exam (test).
 
 **30-Second Interview Answer:**
-> We split our dataset — typically 80% for training and 20% for testing.
-> The model learns patterns from training data.
-> We evaluate its accuracy only on test data that it has never seen before.
-> This gives us a realistic measure of performance.
+> We split our dataset into three parts — training, validation, and test.
+> The model learns from training data, we tune hyperparameters using validation data, and report final performance on the test set which is never seen during development.
+> This gives us an honest estimate of real-world performance.
 
-**Common Follow-up Questions:**
-- What is cross-validation?
-- What split ratio did you use?
-- What is the validation set?
-
-> **Cross-validation** = Split data into k parts. Train on k-1, test on 1. Repeat k times. More reliable than single split.
-> **Validation set** = A third split used during training to tune the model. Train → Validate → Test.
+**Cross-Validation:**
+> Split data into k folds. Train on k-1 folds, validate on 1. Repeat k times. Average the k results.
+> More reliable than a single split — especially when data is limited.
+> **Stratified K-Fold:** ensures each fold has the same class distribution. Better for imbalanced data.
 
 **One-Line Revision:**
-> Train = model learns. Test = we check. Never test on training data.
+> Train = learn. Validation = tune. Test = final honest evaluation. Never tune on test data.
 
 ---
 
-## 6. Accuracy
+## 8. Confusion Matrix
+
+**Easy Definition:**
+A confusion matrix is a 2×2 table showing how a binary classifier's predictions compare to the actual ground truth.
+
+```
+                    Predicted: YES     Predicted: NO
+Actual: YES    │  TP (True Positive)  │  FN (False Negative) │  ← Model missed real positives
+Actual: NO     │  FP (False Positive) │  TN (True Negative)  │  ← Model cried wolf
+```
+
+| Term | Meaning | Example (Disease detection) |
+|---|---|---|
+| **TP** — True Positive | Predicted YES, actually YES | Correctly identified sick patient |
+| **TN** — True Negative | Predicted NO, actually NO | Correctly identified healthy patient |
+| **FP** — False Positive | Predicted YES, actually NO | Wrongly flagged healthy as sick |
+| **FN** — False Negative | Predicted NO, actually YES | Missed a real sick patient ← DANGEROUS |
+
+**Memory Trick:**
+> **False Negative** = model said "No" (Negative) but it was actually Yes → the scariest error in healthcare.
+> **False Positive** = model said "Yes" but it was actually No → annoying but recoverable.
+
+**All metrics derived from confusion matrix:**
+```
+Accuracy  = (TP + TN) / (TP + TN + FP + FN)
+Precision = TP / (TP + FP)
+Recall    = TP / (TP + FN)
+F1        = 2 × (Precision × Recall) / (Precision + Recall)
+```
+
+**30-Second Interview Answer:**
+> A confusion matrix shows the 4 outcomes of a binary classifier: TP, TN, FP, FN.
+> All standard metrics — accuracy, precision, recall, F1 — are derived from these 4 values.
+> It helps you understand not just how often the model is right, but what kind of mistakes it makes.
+
+**One-Line Revision:**
+> Confusion Matrix: TP (correct yes), TN (correct no), FP (false alarm), FN (missed real positive).
+
+---
+
+## 9. Accuracy
 
 **Easy Definition:**
 Accuracy = percentage of total predictions that were correct.
@@ -237,10 +677,6 @@ Quick, easy-to-understand measure of how often the model is right overall.
 **When Accuracy Fails:**
 > If dataset is imbalanced (one class is much more common), accuracy is not enough.
 > Use Precision, Recall, and F1 instead.
-
-**Common Follow-up Questions:**
-- When is accuracy not a good metric?
-- What is class imbalance?
 
 **One-Line Revision:**
 > Accuracy = correct predictions / total predictions. Unreliable on imbalanced data.
@@ -332,6 +768,253 @@ Use F1        → when you need balance between both on imbalanced data
 > F1 = balance of Precision and Recall. Best metric for imbalanced datasets.
 
 ---
+
+## 13. ROC Curve & AUC
+
+**Easy Definition:**
+- **ROC Curve** (Receiver Operating Characteristic): A plot of **Recall (True Positive Rate)** vs **False Positive Rate** at every possible threshold.
+- **AUC** (Area Under the Curve): A single number summarising the ROC curve. Higher = better model.
+
+**What AUC means:**
+| AUC | Interpretation |
+|---|---|
+| 1.0 | Perfect model |
+| 0.9+ | Excellent |
+| 0.7–0.9 | Good |
+| 0.5 | Random guessing (no better than a coin flip) |
+| < 0.5 | Worse than random |
+
+**Why it is used:**
+- Compare two models without fixing a threshold — the model with higher AUC is generally better
+- Works well for imbalanced datasets
+- Shows the tradeoff between catching positives (recall) and producing false alarms (FPR)
+
+**30-Second Interview Answer:**
+> The ROC curve plots True Positive Rate vs False Positive Rate at every threshold.
+> AUC summarises this curve into one number — a model with AUC 0.95 is much better than one with 0.70.
+> We use it to compare models and select the best threshold for deployment.
+
+**One-Line Revision:**
+> ROC = tradeoff curve. AUC = area under it. Closer to 1.0 = better model.
+
+---
+
+## 14. MSE, RMSE, MAE — Regression Metrics
+
+**Used for Regression problems** (predicting a number).
+
+| Metric | Formula | Meaning |
+|---|---|---|
+| **MAE** (Mean Absolute Error) | avg(│actual − predicted│) | Average absolute error. Easy to interpret. |
+| **MSE** (Mean Squared Error) | avg((actual − predicted)²) | Penalises large errors heavily. |
+| **RMSE** (Root MSE) | √MSE | Same unit as target variable. Most used. |
+
+**When to use which:**
+- **MAE** — when outliers exist and you don't want to penalise them heavily
+- **RMSE** — when large errors are especially bad (medical dosage, financial loss)
+- **MSE** — mostly used inside models for optimisation (gradient descent minimises MSE)
+
+**Example:**
+```
+Actual:    [100, 200, 300]
+Predicted: [110, 195, 320]
+Errors:    [ 10,   5,  20]
+
+MAE  = (10 + 5 + 20) / 3 = 11.67
+MSE  = (100 + 25 + 400) / 3 = 175
+RMSE = √175 = 13.23
+```
+
+**One-Line Revision:**
+> MAE = average error. RMSE = same as target units, penalises big errors. Use RMSE as default.
+
+---
+
+## 15. Bias-Variance Tradeoff & Regularization
+
+### Bias-Variance Tradeoff
+
+| Term | Meaning | Symptom | Cause |
+|---|---|---|---|
+| **High Bias** | Model too simple, can't capture patterns | Underfitting — bad on train AND test | Model too simple (Linear Regression on complex data) |
+| **High Variance** | Model too complex, memorises noise | Overfitting — great on train, bad on test | Deep tree, too many features, too little data |
+| **Sweet spot** | Just right complexity | Good on both train and test | Right model + regularization |
+
+```
+Error
+│              Total Error
+│    ╲         ╱
+│      ╲      ╱
+│        ●←── Sweet spot (Bias²+Variance minimised)
+│       Variance
+│  Bias²
+└──────────────────────── Model Complexity
+```
+
+**30-Second Interview Answer:**
+> High bias means the model is too simple — it underfits and can't capture the true pattern.
+> High variance means the model is too complex — it overfits and memorises noise.
+> Good models balance both. Regularization is the main tool to control variance.
+
+### Overfitting — Causes, Symptoms, Fixes
+- **Cause:** Model too complex, too many features, too little data
+- **Symptom:** Train accuracy 98%, Test accuracy 72%
+- **Fixes:** More data, simpler model, regularization (L1/L2), dropout (neural nets), cross-validation, pruning (trees)
+
+### Underfitting — Causes, Symptoms, Fixes
+- **Cause:** Model too simple, too few features, too little training
+- **Symptom:** Train accuracy 65%, Test accuracy 64% (both bad)
+- **Fixes:** More complex model, more features, more training epochs, remove regularization
+
+### L1 Regularization (Lasso)
+- Adds sum of **absolute values** of weights to the loss function
+- Effect: **Shrinks some weights all the way to zero** → performs automatic feature selection
+- Use when: you have many features and suspect many are irrelevant
+- **Memory trick:** L**1** = **L**asso = **L**eaves some weights = **0** (zeros out features)
+
+### L2 Regularization (Ridge)
+- Adds sum of **squared values** of weights to the loss function
+- Effect: **Shrinks all weights toward zero but rarely to exactly zero** — keeps all features
+- Use when: you want to reduce model complexity but keep all features contributing
+- **Memory trick:** L**2** = **R**idge = **R**etains all features (just smaller weights)
+
+| | L1 (Lasso) | L2 (Ridge) |
+|---|---|---|
+| **Weight penalty** | Sum of |w| | Sum of w² |
+| **Feature selection** | ✅ Yes (zeros out features) | ❌ No (all features kept) |
+| **Best for** | Sparse data, many irrelevant features | All features are somewhat relevant |
+
+### Dropout (Neural Networks)
+- Randomly sets a fraction of neurons to **zero** during each training step
+- Forces the network to not rely on any single neuron — learns more robust features
+- Only used during training. At inference, all neurons are active.
+- **Typical dropout rate:** 0.2–0.5 (20–50% of neurons dropped randomly per batch)
+
+**One-Line Revision:**
+> L1 = zero out features (Lasso). L2 = shrink all weights (Ridge). Dropout = randomly deactivate neurons during training.
+
+---
+
+## 16. Optimization & Gradient Descent
+
+### Gradient Descent — Intuition
+**Goal:** Find the model weights that minimise the loss function.
+
+**Analogy:** Imagine you're blindfolded on a hilly landscape and want to reach the lowest valley.
+You feel the slope under your feet and take a step downhill. Repeat until flat.
+
+```
+Loss
+│       ●  ← Start (random weights)
+│      ╱
+│    ╱
+│  ●  ← After gradient descent steps
+│  ●  ← Converged at minimum
+└──────────────── Weights
+```
+
+**Update rule:** `weight = weight − learning_rate × gradient`
+
+### Types of Gradient Descent
+
+| Type | Uses | Pros | Cons |
+|---|---|---|---|
+| **Batch GD** | All training data per update | Stable convergence | Very slow for large data |
+| **Stochastic GD (SGD)** | 1 sample per update | Fast, can escape local minima | Noisy updates, unstable |
+| **Mini-batch GD** | Small batch (32–256 samples) | Balance of speed + stability | Most common in practice |
+
+### Learning Rate
+- **Too high:** Weight updates overshoot → loss diverges (never converges)
+- **Too low:** Very slow convergence → takes forever to train
+- **Just right:** Steady, stable convergence to a good minimum
+
+> Best practice: Start with a learning rate like 0.001. Use a learning rate scheduler that reduces it over time.
+
+### Loss Functions
+| Problem | Loss Function | Why |
+|---|---|---|
+| Regression | **MSE** (Mean Squared Error) | Measures average squared prediction error |
+| Binary Classification | **Binary Cross-Entropy** | Penalises confident wrong predictions heavily |
+| Multi-class Classification | **Categorical Cross-Entropy** | Compares predicted probability distribution to true label |
+
+**One-Line Revision:**
+> Gradient Descent = take small steps downhill on the loss surface. Mini-batch GD is most used. Use MSE for regression, cross-entropy for classification.
+
+---
+
+## 17. Neural Networks & Deep Learning
+
+### Perceptron — Basic Unit
+A Perceptron is the simplest unit in a neural network. It takes inputs, multiplies by weights, sums them up, adds a bias, and passes through an activation function.
+
+```
+Inputs (x₁, x₂, x₃)
+   ↓  multiply by weights
+Weighted Sum + Bias
+   ↓ activation function
+Output (0 or 1)
+```
+
+### Layers
+| Layer | Role |
+|---|---|
+| **Input Layer** | Receives raw features (one neuron per feature) |
+| **Hidden Layer(s)** | Learn internal representations. Depth = number of hidden layers. |
+| **Output Layer** | Produces prediction (one neuron per class, or one for regression) |
+
+### Activation Functions
+
+| Function | Formula | Range | When to Use |
+|---|---|---|---|
+| **Sigmoid** | 1/(1+e^-x) | 0 to 1 | Output layer for binary classification |
+| **Softmax** | eˣⁱ/Σeˣʲ | 0 to 1 (sums to 1) | Output layer for multi-class classification |
+| **ReLU** | max(0, x) | 0 to ∞ | Hidden layers — most commonly used |
+| **Tanh** | (eˣ-e^-x)/(eˣ+e^-x) | -1 to 1 | Hidden layers when negative values matter |
+
+> **Why ReLU for hidden layers?** Simple, fast, doesn't suffer from vanishing gradient like Sigmoid/Tanh.
+
+### Backpropagation
+**How weights are updated:**
+1. Forward pass: feed input, compute output and loss
+2. Compute gradient of loss with respect to each weight (chain rule)
+3. Backward pass: propagate gradients back through layers
+4. Update weights using gradient descent
+
+This process repeats for each batch until the model converges.
+
+### CNN (Convolutional Neural Network)
+**Used for:** Images, videos, spatial data.
+
+**Key idea:** Instead of connecting every pixel to every neuron (expensive), use **filters (kernels)** that slide across the image, detecting local features like edges, shapes, textures.
+
+- **Convolutional layer:** Applies filters to detect features
+- **Pooling layer:** Reduces size while keeping important features (MaxPooling)
+- **Fully connected layer:** Final classification
+
+**One-Line Revision:**
+> CNN = uses sliding filters to detect image features. Best for image/video tasks.
+
+### RNN (Recurrent Neural Network)
+**Used for:** Sequential data — text, time series, audio.
+
+**Key idea:** Has a **memory** (hidden state) that carries information from previous steps.
+Processes input one element at a time and remembers context.
+
+**Problem: Vanishing Gradient** — gradients shrink exponentially as they flow backward through long sequences. RNN forgets long-term context.
+
+### LSTM (Long Short-Term Memory)
+**Solves:** Vanishing gradient problem in RNNs.
+
+**Key idea:** Uses **gates** (forget gate, input gate, output gate) to control what information to keep or discard. Can remember long-range dependencies.
+
+| | RNN | LSTM |
+|---|---|---|
+| **Memory** | Short-term only | Long + short term |
+| **Vanishing gradient** | Suffers | Solved by gates |
+| **Use case** | Short sequences | Long sequences, language models |
+
+**One-Line Revision:**
+> RNN = sequential memory but forgets long context. LSTM = adds gates to fix vanishing gradient and retain long-term memory.
 
 ---
 
@@ -811,6 +1494,122 @@ When you need the model to behave differently — use specific terminology, foll
 > Fine-tuning = retrain LLM on your data to change its behaviour. Expensive but powerful.
 
 ---
+
+## 28. Generative AI & Agentic AI
+
+### What is Generative AI?
+Generative AI creates **new content** — text, images, code, audio — rather than just classifying or predicting.
+
+| Traditional ML | Generative AI |
+|---|---|
+| Input → Label/Number | Input → New Content |
+| "Is this spam?" → Yes/No | "Write a spam email" → full text |
+| Classifies existing data | Creates new data |
+
+**Examples:** ChatGPT (text), DALL-E (images), GitHub Copilot (code), Sora (video)
+
+### LLMs vs Traditional ML Models
+| | Traditional ML | LLMs |
+|---|---|---|
+| **Data** | Structured tables | Unstructured text |
+| **Training** | Task-specific | General → many tasks |
+| **Output** | Category or number | Full text |
+| **Interpretability** | High (feature importance) | Low (black box) |
+| **Size** | Small (MB) | Huge (GB–TB) |
+
+### Agentic AI
+**Agentic AI** = AI that doesn't just answer questions, but takes **autonomous actions** to complete multi-step tasks.
+
+**Key capabilities:**
+- Uses tools (web search, code execution, APIs, databases)
+- Plans a sequence of steps to reach a goal
+- Loops: observe → think → act → observe again
+
+**Real-world example:**
+> You ask: "Book me a flight to Delhi next Tuesday under ₹5000"
+> Agent: searches flight sites → compares prices → fills booking form → confirms
+
+### Multi-Agent Workflows
+Multiple AI agents collaborating, each with a specialised role:
+```
+Orchestrator Agent
+    ├── Research Agent  (searches the web)
+    ├── Analyst Agent   (interprets data)
+    └── Writer Agent    (writes the final report)
+```
+**Why multi-agent?** Divide complex tasks into smaller ones. Each agent is an expert in its subtask.
+
+**One-Line Revision:**
+> GenAI creates new content. Agentic AI takes actions using tools. Multi-agent = team of specialised AIs.
+
+---
+
+## 29. Practical ML Concepts
+
+### Data Imbalance — How to Handle
+**Problem:** One class has far more samples than the other (e.g., 99% healthy, 1% fraud).
+Model just predicts the majority class and gets high accuracy but misses all rare cases.
+
+**Solutions:**
+| Technique | How | When |
+|---|---|---|
+| **Oversampling** | Duplicate minority class samples | Small dataset |
+| **Undersampling** | Remove majority class samples | Large dataset |
+| **SMOTE** (Synthetic Minority Oversampling) | Generate synthetic minority samples using nearest neighbors | Best practice |
+| **Class weights** | Penalise misclassifying minority class more heavily | Built into most sklearn models |
+| **Use better metrics** | Use F1, Recall, AUC instead of Accuracy | Always |
+
+**One-Line Revision:**
+> Data imbalance: use SMOTE to oversample minority class, or adjust class weights. Never just use Accuracy.
+
+---
+
+### Train/Test Leakage
+**What it is:** Information from the test set accidentally influences the training process, making the model appear better than it really is.
+
+**Common causes:**
+- Normalizing on the full dataset before splitting (test min/max leaks into training normalization)
+- Feature engineering using the entire dataset before splitting
+- Temporal data: training on future data to predict the past
+
+**Why it's dangerous:**
+The model performs great in evaluation but fails in production — you deployed a model that was cheating.
+
+**How to prevent:**
+```
+❌ WRONG: Normalize all data → then split
+✅ CORRECT: Split first → fit scaler on train only → transform train and test separately
+```
+
+**One-Line Revision:**
+> Data leakage = test data secretly influences training → inflated performance. Always split BEFORE preprocessing.
+
+---
+
+### Hyperparameter Tuning
+**Parameters vs Hyperparameters:**
+- **Parameters:** Values the model learns during training (weights, biases)
+- **Hyperparameters:** Values YOU set before training (learning rate, K in KNN, max depth in trees)
+
+**Tuning Methods:**
+| Method | How | Best for |
+|---|---|---|
+| **Grid Search** | Try every combination of specified values | Small hyperparameter space |
+| **Random Search** | Randomly sample combinations | Large hyperparameter space |
+| **Bayesian Optimization** | Learn from past results to find best values faster | Production systems |
+
+**Common hyperparameters:**
+- `n_estimators` — number of trees in Random Forest / XGBoost
+- `max_depth` — maximum depth of decision tree
+- `learning_rate` — step size in gradient descent
+- `C` in SVM — penalty for misclassification
+- `K` in KNN — number of neighbors
+
+**One-Line Revision:**
+> Hyperparameters = settings you choose. Grid Search = try all combos. Random Search = sample combos. Always cross-validate.
+
+---
+
 ---
 
 # 📋 One-Page Revision Sheet

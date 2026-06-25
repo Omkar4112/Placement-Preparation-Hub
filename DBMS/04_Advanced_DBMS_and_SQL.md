@@ -383,6 +383,188 @@ This is the actual ORDER SQL clauses are processed internally (different from wr
 
 ---
 
+## 11. Advanced SQL Techniques
+
+### Temporary Tables
+A **Temporary Table** exists only for the duration of a session or transaction. It is stored in `tempdb` (SQL Server) or in memory/temp storage (MySQL). Useful for storing intermediate results in complex queries.
+
+```sql
+-- MySQL: Create a temporary table (auto-dropped when session ends)
+CREATE TEMPORARY TABLE temp_high_earners AS
+SELECT Emp_ID, Emp_Name, Salary
+FROM Employees
+WHERE Salary > 70000;
+
+-- Use it like a regular table
+SELECT * FROM temp_high_earners ORDER BY Salary DESC;
+
+-- Manually drop it (optional — it drops automatically when session ends)
+DROP TEMPORARY TABLE temp_high_earners;
+```
+
+```sql
+-- SQL Server: Prefix with # for local temp table (session-scoped)
+SELECT Emp_ID, Emp_Name, Salary
+INTO #temp_high_earners
+FROM Employees
+WHERE Salary > 70000;
+
+SELECT * FROM #temp_high_earners;
+DROP TABLE #temp_high_earners;
+
+-- ## for global temp tables (visible to all sessions, dropped when all references close)
+SELECT * INTO ##global_temp FROM Employees;
+```
+
+| Feature | Temporary Table | CTE | Subquery |
+| :--- | :--- | :--- | :--- |
+| **Persistence** | Session/transaction | Single query | Single query |
+| **Reusable** | ✅ Yes (multiple queries) | ✅ Within same query | ❌ No |
+| **Indexable** | ✅ Yes | ❌ No | ❌ No |
+| **Best for** | Large intermediate results, multi-step logic | Readable single queries | Simple inline filters |
+
+> [!TIP]
+> **Interview Answer:** Use Temporary Tables when you need to store a large intermediate result set that is reused multiple times across several queries in the same session. Use CTEs for readability within a single query.
+
+---
+
+### Derived Tables (Inline Views)
+A **Derived Table** is a subquery used inside a `FROM` clause, treated as a virtual table for that query only. Unlike CTEs, they cannot reference themselves.
+
+```sql
+-- Find departments where the average salary exceeds 70,000
+-- The inner SELECT is the Derived Table (aliased as 'dept_avg')
+SELECT dept_avg.Dept_ID, dept_avg.Avg_Salary
+FROM (
+    SELECT Dept_ID, AVG(Salary) AS Avg_Salary
+    FROM Employees
+    WHERE Salary IS NOT NULL
+    GROUP BY Dept_ID
+) AS dept_avg                          -- <-- This is the derived table
+WHERE dept_avg.Avg_Salary > 70000;
+
+-- Output: Dept 1 (90000), Dept 2 (78333)
+```
+
+```sql
+-- Derive the top earner per department, then join back to get their name
+SELECT E.Emp_Name, E.Dept_ID, E.Salary
+FROM Employees E
+JOIN (
+    SELECT Dept_ID, MAX(Salary) AS Max_Sal
+    FROM Employees
+    GROUP BY Dept_ID
+) AS dept_max ON E.Dept_ID = dept_max.Dept_ID
+            AND E.Salary   = dept_max.Max_Sal;
+```
+
+> [!NOTE]
+> **Derived Table vs CTE:** A derived table is embedded directly in the FROM clause. A CTE is defined with `WITH` before the query. CTEs are generally preferred for readability; derived tables can be useful for simple one-off transformations.
+
+---
+
+### Dynamic SQL
+**Dynamic SQL** is SQL that is constructed and executed at runtime as a string — useful when table names, column names, or conditions are not known until execution time.
+
+```sql
+-- MySQL: Dynamic SQL using PREPARE and EXECUTE
+SET @table_name = 'Employees';
+SET @sql = CONCAT('SELECT COUNT(*) FROM ', @table_name);
+
+PREPARE stmt FROM @sql;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+-- Output: 8
+```
+
+```sql
+-- Practical: Dynamic column filter (column name as variable)
+SET @col = 'Salary';
+SET @val = 80000;
+SET @sql = CONCAT('SELECT Emp_Name FROM Employees WHERE ', @col, ' >= ', @val);
+
+PREPARE stmt FROM @sql;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+```
+
+```sql
+-- SQL Server: Dynamic SQL using sp_executesql (safer — prevents SQL injection)
+DECLARE @TableName NVARCHAR(50) = 'Employees';
+DECLARE @SQL NVARCHAR(MAX);
+
+SET @SQL = N'SELECT COUNT(*) FROM ' + QUOTENAME(@TableName);
+EXEC sp_executesql @SQL;
+-- QUOTENAME() wraps in square brackets → [Employees], preventing injection
+```
+
+> [!WARNING]
+> **SQL Injection Risk!** Never concatenate raw user input directly into a dynamic SQL string. Always use parameterized queries (`sp_executesql` with parameters in SQL Server, or `PREPARE` with placeholders in MySQL) to prevent SQL injection attacks.
+
+---
+
+### Partitioning
+**Partitioning** splits a large table into smaller, more manageable pieces (partitions) while appearing as one table to the user. Queries that filter on the partition key only scan the relevant partition(s) — called **Partition Pruning**.
+
+#### Types of Partitioning
+
+| Type | How it Works | Best For |
+| :--- | :--- | :--- |
+| **RANGE** | Rows assigned to partitions based on a value range | Date-based data (orders by year) |
+| **LIST** | Rows assigned based on a discrete list of values | Region/country codes |
+| **HASH** | Rows distributed evenly using a hash function | Load balancing, no natural partition key |
+| **KEY** | Similar to HASH but uses MySQL's own hash function | General even distribution |
+
+```sql
+-- RANGE Partitioning: Split Orders table by year
+CREATE TABLE Orders (
+    Order_ID   INT NOT NULL,
+    Order_Date DATE NOT NULL,
+    Amount     DECIMAL(10,2)
+)
+PARTITION BY RANGE (YEAR(Order_Date)) (
+    PARTITION p2022 VALUES LESS THAN (2023),
+    PARTITION p2023 VALUES LESS THAN (2024),
+    PARTITION p2024 VALUES LESS THAN (2025),
+    PARTITION p_future VALUES LESS THAN MAXVALUE
+);
+
+-- This query ONLY scans the p2023 partition (Partition Pruning!)
+SELECT * FROM Orders WHERE Order_Date BETWEEN '2023-01-01' AND '2023-12-31';
+```
+
+```sql
+-- LIST Partitioning: Split Employees by region
+CREATE TABLE Employees_Regional (
+    Emp_ID INT,
+    Region VARCHAR(20)
+)
+PARTITION BY LIST COLUMNS(Region) (
+    PARTITION p_north VALUES IN ('Delhi', 'Chandigarh'),
+    PARTITION p_south VALUES IN ('Chennai', 'Bangalore'),
+    PARTITION p_west  VALUES IN ('Mumbai', 'Pune')
+);
+```
+
+```sql
+-- Manage partitions
+ALTER TABLE Orders ADD PARTITION (PARTITION p2025 VALUES LESS THAN (2026));
+ALTER TABLE Orders DROP PARTITION p2022;   -- Instantly deletes all 2022 data!
+```
+
+**Benefits of Partitioning:**
+- ⚡ **Faster queries** via partition pruning (only relevant partitions scanned)
+- 🗑️ **Fast data archiving** — drop an old partition instead of slow `DELETE`
+- 🔧 **Easier maintenance** — rebuild index on one partition, not the whole table
+- 💾 **Better I/O distribution** — different partitions on different disks
+
+> [!IMPORTANT]
+> **Partitioning vs Sharding:**
+> - **Partitioning** splits data within a single database instance (one server).
+> - **Sharding** splits data across multiple database instances (multiple servers). Used at massive scale (millions of rows, distributed systems).
+
+---
+
 # 🛑 CHAPTER END REVISIONS 🛑
 
 ## ⚡ 5-Minute Quick Revision
@@ -401,6 +583,10 @@ This is the actual ORDER SQL clauses are processed internally (different from wr
 13. **Dense Index:** One entry per record. Sparse Index: One entry per block.
 14. **Clustered:** ONE per table, physical order. Non-Clustered: MANY per table, separate structure with pointers.
 15. **Query Execution Order:** FROM → WHERE → GROUP BY → HAVING → SELECT → DISTINCT → ORDER BY → LIMIT.
+16. **Temporary Tables:** Session-scoped tables for storing intermediate results. Indexable and reusable within session.
+17. **Derived Tables:** Subquery in FROM clause — a one-time inline virtual table.
+18. **Dynamic SQL:** SQL built and executed as a string at runtime. Use parameterized queries to prevent SQL injection.
+19. **Partitioning:** Splits a large table into smaller partitions. RANGE (dates), LIST (discrete values), HASH (even distribution). Enables partition pruning for fast queries.
 
 ## 🤔 Common Mistakes Students Make in Interviews
 1. **Confusing Atomicity and Consistency:** Atomicity guarantees the transaction runs fully or aborts. Consistency guarantees business rules (like money cannot be negative) are upheld before and after.
