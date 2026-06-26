@@ -44,854 +44,1229 @@
 
 ## 1. Machine Learning Basics
 
-**Easy Definition:**
-Machine Learning is teaching a computer to learn from data — without writing rules manually.
-You give examples, the computer finds patterns on its own, and uses those patterns to predict new outcomes.
+### Definition
+Machine Learning (ML) is a **subset of Artificial Intelligence** that enables computers to **learn patterns from data and make predictions or decisions — without being explicitly programmed with rules**.
 
-**Why it is used:**
-- Too many patterns for a human to code manually
-- Gets better with more data
-- Works across many domains — healthcare, finance, language, images
+Instead of coding if-else logic for every scenario, you give the algorithm examples (data), it finds patterns on its own, and uses those patterns on new unseen data.
 
-**Real-World Example:**
-> Gmail's spam filter — nobody wrote rules for every spam pattern.
-> The model learned from millions of spam vs non-spam emails and now classifies on its own.
+### Traditional Programming vs Machine Learning
 
-**30-Second Interview Answer:**
-> Machine Learning is a branch of AI where systems learn from data to make predictions without being explicitly programmed.
-> Instead of writing if-else rules, you train a model on historical data and it learns the patterns automatically.
-> It has three types — Supervised, Unsupervised, and Reinforcement Learning.
+| | Traditional Programming | Machine Learning |
+|---|---|---|
+| **You provide** | Data + Hand-written Rules | Data + Correct Answers (Labels) |
+| **System produces** | Output/Answers | Rules (the Model itself) |
+| **Example** | `if "offer" in email → spam` | Model learns spam patterns from 10,000 labelled emails |
+| **Limitation** | Breaks on unseen/new patterns | Generalises automatically to new data |
 
-**Common Follow-up Questions:**
-- What are the types of ML? (Supervised / Unsupervised / Reinforcement)
-- What is overfitting?
+### Why ML is Used
+- Pattern space is too large to code manually (spam, fraud, image recognition)
+- Performance improves automatically as more data is collected
+- One model works across diverse inputs (no need to reprogram for each case)
+- Handles unstructured data (text, images, audio) that rules can't describe
+
+### Real-World Example
+> **Gmail Spam Filter** — Engineers didn't write rules for every spam pattern ("contains offer" OR "click here" OR ...).
+> The model was trained on millions of spam vs. non-spam emails. It learned what spam looks like, and now classifies new emails on its own — even adapting to new spam styles it has never seen before.
+
+### 30-Second Interview Answer
+> Machine Learning is a branch of AI where systems learn from historical data to make predictions, without being explicitly programmed.
+> Instead of writing if-else rules, we train a model on labelled examples — it learns to map inputs to outputs automatically.
+> ML has three main types: Supervised (labelled data), Unsupervised (no labels), and Reinforcement Learning (reward-based).
+
+### Common Follow-up Questions
+- What are the types of ML?
+- What is overfitting and how do you prevent it?
 - How is ML different from traditional programming?
+- What is a model? What is training?
 
-**One-Line Revision:**
-> ML = Computer learns from data instead of following manually written rules.
+### One-Line Revision
+> ML = System learns rules from data automatically, instead of a human writing those rules manually.
 
 ---
 
-### Types of ML (Must Know)
+### Types of ML — Must Know
 
-| Type | Data Needed | Goal | Example |
+| Type | Input Data | What Model Does | Real Example |
 |---|---|---|---|
-| **Supervised** | Input + correct answer (labelled) | Predict output | Disease: Yes/No |
-| **Unsupervised** | Input only (no labels) | Find hidden groups | Customer segments |
-| **Reinforcement** | Rewards and penalties | Maximize reward | Game AI, robots |
-| **Semi-supervised** | Mostly unlabelled + some labelled | Predict output | Web content classification |
+| **Supervised Learning** | Labelled (Input + correct Output given) | Learns to predict the output for new inputs | Email → Spam or Not Spam |
+| **Unsupervised Learning** | Unlabelled (Only Input, no Output given) | Discovers hidden structure/groupings on its own | Group customers by buying behavior |
+| **Reinforcement Learning** | Rewards and penalties from environment | Agent takes actions to maximize cumulative reward | Chess AI, Self-driving car, Robot |
+| **Semi-supervised Learning** | Small labelled set + large unlabelled set | Uses both to predict output more accurately | Web page classification, Medical imaging |
 
-**Overfitting** = Model performs great on training data but poorly on new data.
-It memorised instead of learning general patterns.
-Fix: more data, simpler model, regularization, cross-validation.
+**Key Distinction — Supervised vs Unsupervised:**
+- **Supervised** → You know the answers (labels). Model learns to predict them.
+- **Unsupervised** → No answers given. Model finds its own patterns/groups.
+
+### Overfitting vs Underfitting — Must Know
+
+| | Overfitting | Underfitting |
+|---|---|---|
+| **What happens** | Model memorises training data (incl. noise) | Model is too simple to capture the pattern |
+| **Performance** | Train: 98% ✅ Test: 62% ❌ | Train: 60% ❌ Test: 58% ❌ (both bad) |
+| **Also called** | High Variance | High Bias |
+| **Cause** | Model too complex, too few data, too many features | Model too simple, too few features, insufficient training |
+| **Fix** | More data, simpler model, regularization (L1/L2), cross-validation | More complex model, more features, more training epochs |
+
+> **Memory Trick:** Overfitting = model "cheated" by memorising. Underfitting = model "gave up" too early.
 
 ---
 
 ### AI vs ML vs DL vs Data Science
 
-| Term | What it is | Scope |
-|---|---|---|
-| **AI** (Artificial Intelligence) | Any technique making machines act smart | Broadest |
-| **ML** (Machine Learning) | AI that learns patterns from data | Subset of AI |
-| **DL** (Deep Learning) | ML using many-layered neural networks | Subset of ML |
-| **Data Science** | Extracting insights from data using stats + ML + domain knowledge | Overlaps all |
+| Term | Full Form | Definition | Scope |
+|---|---|---|---|
+| **AI** | Artificial Intelligence | Any technique enabling machines to simulate intelligent behaviour | Broadest |
+| **ML** | Machine Learning | AI that allows systems to learn from data without explicit programming | Subset of AI |
+| **DL** | Deep Learning | ML using multi-layered Artificial Neural Networks (ANNs) to learn complex patterns | Subset of ML |
+| **Data Science** | — | Combines ML, statistics, programming, and domain knowledge to extract insights | Overlaps AI/ML |
 
 ```
-           Artificial Intelligence
-         ┌─────────────────────────┐
-         │    Machine Learning     │
-         │  ┌───────────────────┐  │
-         │  │   Deep Learning   │  │
-         │  └───────────────────┘  │
-         └─────────────────────────┘
+           Artificial Intelligence (AI)
+         ┌────────────────────────────────┐
+         │       Machine Learning (ML)    │
+         │   ┌────────────────────────┐   │
+         │   │    Deep Learning (DL)  │   │
+         │   └────────────────────────┘   │
+         └────────────────────────────────┘
+              Data Science overlaps all layers
 ```
 
-**30-Second Interview Answer:**
-> AI is the broad field of making machines smart. ML is a subset where machines learn from data.
-> Deep Learning is a subset of ML using neural networks with many layers.
-> Data Science combines ML with statistics, domain knowledge, and data engineering to extract business insights.
+**Key Differences:**
+- **AI** → The *goal*: make machines act smart
+- **ML** → The *method*: learn from data
+- **DL** → The *technique*: deep neural networks
+- **Data Science** → The *application*: extract business insights using all of the above
 
-**One-Line Revision:**
-> AI ⊃ ML ⊃ DL. Data Science uses all of them to extract insights.
+### 30-Second Interview Answer (AI vs ML vs DL)
+> AI is the broadest concept — any technique making machines behave intelligently.
+> ML is a subset of AI where machines learn from data instead of following programmed rules.
+> Deep Learning is a subset of ML that uses neural networks with many hidden layers to learn complex patterns from raw data (images, audio, text).
+> Data Science is an applied field combining ML, statistics, and domain expertise to derive actionable insights.
+
+### One-Line Revision
+> AI ⊃ ML ⊃ DL. Data Science uses all of them to solve real-world business problems.
 
 ---
 
-## 2. Data Preprocessing — Normalization, Standardization, Missing Values, Feature Engineering
+## 2. Data Preprocessing
 
-### Normalization vs Standardization
+### Definition
+Data Preprocessing is the process of **cleaning, transforming, and preparing raw data** before feeding it into an ML model.
+Raw data is messy — it has missing values, different scales, irrelevant columns, and inconsistent formats. Preprocessing fixes all of this.
 
-| | Normalization (Min-Max Scaling) | Standardization (Z-score) |
+### Why It Matters
+- Garbage in = Garbage out. A model trained on bad data will give bad predictions.
+- Most real-world data is 80% preprocessing, 20% modelling.
+- Missing values and unscaled features can completely break many ML algorithms.
+
+---
+
+### Normalization vs Standardization — Feature Scaling
+
+Many ML algorithms (KNN, SVM, Neural Networks) are **sensitive to the scale of features**.
+If one feature is in thousands (salary) and another is 0–1 (age ratio), the model will unfairly favour the larger one.
+Scaling fixes this by bringing all features to a comparable range.
+
+| | Normalization (Min-Max Scaling) | Standardization (Z-score Scaling) |
 |---|---|---|
-| **Formula** | (x − min) / (max − min) | (x − mean) / std_deviation |
-| **Range** | 0 to 1 | No fixed range (mean=0, std=1) |
-| **Use when** | Algorithm sensitive to scale (KNN, SVM, Neural Networks) | Data has outliers; Logistic Regression, PCA |
-| **Example** | Age [20–60] → [0.0–1.0] | Salary [30k–200k] → standardized around 0 |
+| **Formula** | `(x − min) / (max − min)` | `(x − mean) / standard_deviation` |
+| **Output Range** | 0 to 1 (bounded) | No fixed range; mean = 0, std = 1 |
+| **Effect** | Compresses values into [0,1] | Centers data around 0 with unit variance |
+| **Use when** | You know the min/max; no major outliers | Outliers exist; Logistic Regression, PCA |
+| **Sensitive to outliers?** | Yes — outlier skews the range | Less sensitive |
+| **Example** | Age [20–60] → [0.0–1.0] | Salary [30k–200k] → values centered around 0 |
+| **Algorithms that need it** | KNN, SVM, Neural Networks, PCA | Same + Logistic Regression |
 
 > [!TIP]
-> **Rule of Thumb:** Use Normalization when you know the min/max. Use Standardization when you don't or when outliers exist.
+> **Rule of Thumb:** If data has outliers → use Standardization. If you know min/max and no outliers → use Normalization.
+> Tree-based models (Decision Tree, Random Forest, XGBoost) do **NOT** need feature scaling.
+
+---
 
 ### Handling Missing Values
 
-| Strategy | How | When to Use |
+Missing values occur when data wasn't collected, was lost, or was entered incorrectly. You must handle them before training.
+
+| Strategy | How It Works | When to Use |
 |---|---|---|
-| **Remove rows** | Drop rows with missing values | When missing data is <5% and random |
-| **Mean/Median imputation** | Replace with column average or median | Numerical columns without extreme skew |
-| **Mode imputation** | Replace with most common value | Categorical columns |
-| **Model-based imputation** | Predict missing value using other columns | When missingness has patterns |
-| **Flag + fill** | Add is_missing column, fill with 0 | When missingness itself is informative |
+| **Remove rows** | Drop rows that contain missing values | When missing data is <5% and random (not systematic) |
+| **Mean imputation** | Replace missing value with column **mean** | Numerical data with no extreme outliers or skew |
+| **Median imputation** | Replace missing value with column **median** | Numerical data with outliers (median is robust) |
+| **Mode imputation** | Replace missing value with most **frequent value** | Categorical columns |
+| **Model-based imputation** | Predict the missing value using other columns | When missingness has a pattern or structure |
+| **Flag + fill** | Add an `is_missing` binary column, then fill with 0 | When the fact that a value is missing is itself informative |
+
+> **Mean vs Median:** Use mean when data is symmetric. Use median when data is skewed or has outliers — median is not pulled by extreme values.
+
+---
 
 ### Feature Engineering
-**Feature Engineering** is creating new or better input features from raw data to improve model performance.
+
+**Definition:** Feature Engineering is the process of **creating new input features from raw data** using domain knowledge to help the model learn better patterns.
+
+**Why it matters:**
+- Better features = better accuracy, even with a simple algorithm
+- Raw data often doesn't directly capture the meaningful signal a model needs
+- Captures domain logic ("session duration" is more useful than raw login/logout timestamps)
 
 **Examples:**
 ```
-Raw: Birth_Date → Engineered: Age (2025 - Birth_Year)
-Raw: Login_Time, Logout_Time → Engineered: Session_Duration
-Raw: Address → Engineered: City, State, Pincode (separate columns)
-Raw: Price, Quantity → Engineered: Total_Revenue = Price × Quantity
+Raw: Birth_Date           → Engineered: Age = (2025 − Birth_Year)
+Raw: Login_Time, Logout_Time → Engineered: Session_Duration = Logout − Login
+Raw: Full_Address         → Engineered: City, State, Pincode (split into 3 columns)
+Raw: Price, Quantity      → Engineered: Total_Revenue = Price × Quantity
+Raw: Date                 → Engineered: Day_of_Week, Is_Weekend, Month, Quarter
 ```
 
-**Why it matters:**
-- Better features = better model accuracy, even with a simple algorithm
-- Captures domain knowledge that raw data doesn't express directly
+**Types of Feature Engineering:**
+| Type | Description |
+|---|---|
+| **Feature creation** | Combining/transforming columns to make new meaningful ones |
+| **Feature extraction** | Pulling structure from raw data (e.g., extracting year from date) |
+| **Feature selection** | Removing irrelevant or redundant features to reduce noise |
+| **Encoding** | Converting categorical data to numbers (One-Hot Encoding, Label Encoding) |
+| **Binning** | Converting continuous numbers to categories (Age: 0–18 = Youth, 18–60 = Adult) |
 
 **One-Line Revision:**
-> Feature Engineering = create smarter inputs from raw data to give the model more signal.
+> Feature Engineering = transform raw data into smarter, more informative inputs for the model.
+
+---
 
 ### Curse of Dimensionality
-As the number of features (dimensions) increases, the amount of data needed to cover the feature space grows **exponentially**.
 
-**Real-World Analogy:**
-> Imagine finding someone on a 1D number line → easy.
-> On a 2D map → harder.
-> In a 3D building → harder still.
-> With 100 dimensions → virtually impossible without enormous data.
+**Definition:** As the number of features (dimensions) increases, the volume of the feature space grows **exponentially**, making data increasingly sparse and models increasingly difficult to train.
 
-**Problems caused:**
-- Models need exponentially more data to generalise
-- Most data points become "distant" from each other — distance metrics lose meaning
-- KNN and SVM suffer the most
+**Intuition:**
+```
+1D (number line) : ───────────────── → easy to cover with data
+2D (flat map)    : ■■■■■■■■■■■■■■■■ → more data needed
+3D (cube)        : 3D volume         → even more data needed
+100D (hypercube) : ???               → astronomically more data needed
+```
 
-**Solution:** Dimensionality Reduction — PCA, feature selection, removing correlated features.
+**Problems it causes:**
+- Models need **exponentially more data** to generalise — very hard to collect
+- Data points become **"far apart"** from each other in high dimensions — distance metrics like Euclidean distance lose meaning
+- KNN and SVM are most affected (distance-based algorithms)
+- Training becomes **slower** and **more prone to overfitting**
+
+**Solutions:**
+- **Dimensionality Reduction:** PCA (Principal Component Analysis) to compress features
+- **Feature Selection:** Remove irrelevant or correlated features
+- **Domain Knowledge:** Only keep features you know are meaningful
 
 **One-Line Revision:**
-> More features = more data needed. Too many features hurt model performance. Use PCA to reduce.
+> Curse of Dimensionality = too many features → data becomes sparse, distance meaningless, model breaks. Fix: PCA or feature selection.
 
 ---
 
 ## 3. Supervised Learning Algorithms
 
+---
+
 ### Linear Regression
-**Task:** Predict a continuous number (price, temperature, salary).
 
-**Equation:** `y = mx + b` (one feature) or `y = w₁x₁ + w₂x₂ + ... + b` (many features)
+**Task:** Predict a **continuous numeric value** (price, salary, temperature, blood sugar level).
 
-**How it works:** Finds the best-fit line through the data that minimises prediction error.
+**Definition:** Linear Regression finds the **best-fit straight line** (or hyperplane in multiple dimensions) through the training data that minimizes the prediction error.
 
-**Cost Function (MSE):** Measures average squared error between predicted and actual values. Model minimises this.
+**Equation:**
+```
+Simple (1 feature):   y = mx + b
+Multiple features:    y = w₁x₁ + w₂x₂ + ... + wₙxₙ + b
 
-**Assumptions:**
-1. Linear relationship between X and y
+Where:
+  y  = predicted output
+  x  = input feature(s)
+  w  = weights (slope) learned during training
+  b  = bias (intercept)
+```
+
+**How it learns:** The model adjusts weights (w) to minimize the **Mean Squared Error (MSE)** — the average squared difference between predicted and actual values.
+
+**Key Assumptions:**
+1. Linear relationship between input features and output
 2. Residuals (errors) are normally distributed
 3. No multicollinearity (features not highly correlated with each other)
-4. Homoscedasticity — variance of errors is constant
+4. Homoscedasticity — variance of errors is constant across all values
+
+**Pros vs Cons:**
+| Pros | Cons |
+|---|---|
+| Simple and fast | Assumes linear relationship |
+| Highly interpretable (coefficient = effect of each feature) | Sensitive to outliers |
+| Good baseline for regression | Fails on complex non-linear data |
+
+**Real Example:** Predict house price based on size, location, and number of rooms.
 
 **One-Line Revision:**
-> Linear Regression = fit a line to predict a number. Minimises MSE.
+> Linear Regression = fits a line to minimize MSE. Predicts continuous numbers. Interpretable.
 
 ---
 
 ### Logistic Regression
-**Task:** Binary Classification (Yes/No, Spam/Ham).
 
-**Key idea:** Despite the name "Regression", it is used for **classification**.
-It uses the **sigmoid function** to output a probability between 0 and 1.
+**Task:** **Binary Classification** — predict one of two classes (Yes/No, Spam/Not Spam, Disease/Healthy).
 
+**Definition:** Despite the name "Regression", Logistic Regression is a **classification algorithm**.
+It uses the **sigmoid function** to squish any value into a probability between 0 and 1, then applies a threshold to classify.
+
+**How it works:**
 ```
-Sigmoid: σ(z) = 1 / (1 + e^(-z))
+Step 1: Compute linear combination
+        z = w₁x₁ + w₂x₂ + ... + b
 
-Output > 0.5 → Class 1 (Yes/Positive)
-Output ≤ 0.5 → Class 0 (No/Negative)
+Step 2: Apply sigmoid function
+        P(y=1) = σ(z) = 1 / (1 + e^⁻ᶓ)    → outputs a probability [0, 1]
+
+Step 3: Apply threshold (default = 0.5)
+        If P(y=1) > 0.5  →  Predict Class 1 (Positive)
+        If P(y=1) ≤ 0.5  →  Predict Class 0 (Negative)
 ```
 
-**Threshold:** Default is 0.5, but you can change it.
-- Lower threshold → More positives caught (higher Recall, lower Precision)
-- Higher threshold → Fewer false alarms (higher Precision, lower Recall)
+**Threshold Adjustment:**
+- **Lower threshold (e.g., 0.3):** More positives predicted → Higher Recall, Lower Precision (use in healthcare)
+- **Higher threshold (e.g., 0.7):** Fewer positives predicted → Higher Precision, Lower Recall (use in spam filter)
+
+**Loss Function:** Binary Cross-Entropy (not MSE like linear regression)
+
+**Pros vs Cons:**
+| Pros | Cons |
+|---|---|
+| Simple, fast, interpretable | Only works for linearly separable classes |
+| Outputs probabilities, not just labels | Not suitable for complex, non-linear boundaries |
+| Good baseline for classification | Requires feature scaling |
 
 **One-Line Revision:**
-> Logistic Regression = classifies using sigmoid function. Outputs probability, uses threshold to decide class.
+> Logistic Regression = uses sigmoid to output probability → applies threshold → predicts class. Despite its name, it's a classification algorithm.
 
 ---
 
 ### Decision Tree
+
 **Task:** Classification or Regression.
 
-**How it works:** Splits data into branches by asking yes/no questions about features. Each split tries to separate classes as cleanly as possible.
+**Definition:** A Decision Tree is a tree-structured model that makes predictions by **asking a series of yes/no questions** about features, splitting the data into increasingly pure groups.
 
-**Splitting Criteria:**
+**How it works:**
+```
+Root Node: Is blood sugar > 126?
+    YES → Is BMI > 30?
+              YES → Predict: Diabetic
+              NO  → Predict: At-Risk
+    NO  → Predict: Healthy
+```
 
-| Criterion | What it measures | Used in |
+**Splitting Criteria (how it chooses which question to ask):**
+
+| Criterion | What It Measures | Used In |
 |---|---|---|
-| **Gini Impurity** | How often a random sample would be misclassified | Classification (default in sklearn) |
-| **Entropy / Information Gain** | How much "disorder" is reduced by the split | Classification |
-| **MSE reduction** | How much variance is reduced | Regression trees |
+| **Gini Impurity** | How often a random sample from the node would be misclassified | Classification (default in sklearn) |
+| **Entropy / Information Gain** | Reduction in disorder/uncertainty after the split | Classification |
+| **MSE Reduction** | Reduction in variance of target values after the split | Regression trees |
 
 ```
-Gini = 1 − Σ(pᵢ²)    [0 = pure, 0.5 = most impure for binary]
-Entropy = −Σ(pᵢ log₂ pᵢ)  [0 = pure]
-Information Gain = Entropy(parent) − weighted avg Entropy(children)
+Gini Impurity  = 1 − Σ(pᵢ²)         [0 = pure, 0.5 = most impure for binary]
+Entropy        = −Σ(pᵢ × log₂ pᵢ)   [0 = pure]
+Info Gain      = Entropy(parent) − weighted avg Entropy(children)
 ```
 
-**Pros:** Easy to interpret, no scaling needed, handles missing values
-**Cons:** Overfits easily (fix: limit depth, pruning, use ensemble)
+> **Key rule:** At each node, choose the split with the **highest Information Gain** (or lowest Gini).
+
+**Pros vs Cons:**
+| Pros | Cons |
+|---|---|
+| Very easy to visualise and interpret | Easily overfits (memorises training data) |
+| No feature scaling needed | Unstable — small data changes can change tree structure |
+| Handles both numerical & categorical data | Not as accurate as ensemble methods |
+| Captures non-linear patterns | |
+
+**Fixes for overfitting:** Limit max_depth, min_samples_leaf, pruning, or use Random Forest.
 
 **One-Line Revision:**
-> Decision Tree = asks yes/no questions. Splits using Gini or Information Gain. Overfits easily.
+> Decision Tree = asks yes/no questions, splits on Gini/Info Gain. Interpretable but overfits easily.
 
 ---
 
 ### Random Forest
-**Task:** Classification or Regression. An **ensemble** method.
 
-**How it works (Bagging):**
-1. Draw multiple random samples from training data (with replacement) → Bootstrapping
-2. Build one Decision Tree on each sample, using a **random subset of features** at each split
-3. For classification: take **majority vote** across all trees. For regression: take **average**
+**Task:** Classification or Regression. An **ensemble** method (combines many models).
 
-**Why random features?** Prevents all trees from looking the same. Creates diverse, uncorrelated trees.
+**Definition:** Random Forest builds **many Decision Trees**, each on a random subset of data and features, then **combines their predictions** by majority vote (classification) or averaging (regression).
 
-**Key points:**
-- Reduces overfitting (averaging reduces variance)
-- More robust than a single Decision Tree
-- Slower than a single tree but much more accurate
-- Provides feature importance
+**How it works — Bagging (Bootstrap Aggregating):**
+```
+Step 1: Draw N random samples WITH replacement from training data  → Bootstrapping
+Step 2: For each sample, train one Decision Tree
+        (at each split, use only a random subset of features, not all features)
+Step 3: Combine all tree predictions:
+        Classification: majority vote (most trees say "Yes" → predict Yes)
+        Regression:     average of all tree outputs
+```
 
-**Bagging vs Boosting:**
+**Why use random feature subsets?**
+If all trees use the same features, they'll all look similar (correlated). Random feature selection ensures **diverse, uncorrelated trees** — which when averaged, cancel out each other's errors.
 
+**Key Properties:**
+- Reduces overfitting by averaging out individual tree errors (reduces variance)
+- More robust and accurate than a single Decision Tree
+- Provides **feature importance scores** — tells you which features matter most
+- No feature scaling needed (tree-based)
+
+**Bagging (Random Forest) vs Boosting (XGBoost):**
 | | Bagging (Random Forest) | Boosting (XGBoost) |
 |---|---|---|
-| **Tree building** | Parallel (independent) | Sequential (each fixes previous) |
-| **Goal** | Reduce variance | Reduce bias |
+| **Tree building** | Parallel — trees built independently | Sequential — each tree corrects previous |
+| **Goal** | Reduce variance (overfitting) | Reduce bias (underfitting) |
 | **Risk** | Slight underfitting | Slight overfitting without tuning |
+| **Speed** | Faster (parallel) | Slower (sequential) |
 
 **One-Line Revision:**
-> Random Forest = many Decision Trees trained on random subsets, results averaged. Reduces overfitting.
+> Random Forest = many trees on random data+feature subsets, combined by majority vote. Reduces overfitting.
 
 ---
 
 ### KNN (K-Nearest Neighbors)
-**Task:** Classification or Regression. A **lazy learner** (no training phase — just stores data).
+
+**Task:** Classification or Regression.
+
+**Definition:** KNN is a **non-parametric, lazy learning algorithm** that classifies a new data point based on the **majority class of its K nearest neighbors** in the training data.
 
 **How it works:**
-1. Given a new point, find the K closest training points (using distance — usually Euclidean)
-2. For classification: take majority vote among K neighbors
-3. For regression: take average of K neighbors' values
+```
+Step 1: Choose value of K (number of neighbors)
+Step 2: For a new input point, calculate distance to all training points
+        (typically Euclidean distance: √((x2-x1)² + (y2-y1)²))
+Step 3: Select K training points closest to the new input
+Step 4:
+  Classification: Take majority vote of K neighbors → predict that class
+  Regression:     Take average of K neighbors' values → predict that number
+```
 
 **Choosing K:**
-- Small K (e.g., K=1) → sensitive to noise, overfits
-- Large K → smoother but may miss local patterns, underfits
-- Best practice: try odd values (avoid ties), use cross-validation
+| K Value | Effect |
+|---|---|
+| **Small K (K=1)** | Very sensitive to noise, overfits, irregular decision boundary |
+| **Large K** | Smoother boundary, may underfit by ignoring local patterns |
+| **Best practice** | Use odd K (avoid ties), tune using cross-validation, try K = √n |
 
-**Why "lazy learner"?** It doesn't build a model during training — just memorises the data.
-All computation happens at prediction time → slow for large datasets.
+**Why "lazy learner"?**
+- No training phase — just stores all training data
+- All computation happens at **prediction time** → slow for large datasets
+- Opposite of "eager learners" (Linear Regression, Decision Tree) that build a model upfront
 
-**Needs:** Feature scaling (Normalization/Standardization) — distance is scale-sensitive.
+**Key Requirement:** Feature scaling (Normalization/Standardization) is **mandatory** — distance is scale-sensitive. Without it, high-range features dominate.
+
+**Pros vs Cons:**
+| Pros | Cons |
+|---|---|
+| Simple, no training needed | Slow at prediction time (calculates all distances) |
+| Works for both classification and regression | Needs feature scaling |
+| No assumptions about data distribution | Suffers from curse of dimensionality |
+| Naturally handles multi-class | Memory-heavy (stores entire dataset) |
 
 **One-Line Revision:**
-> KNN = find K nearest neighbors, take their vote. Lazy learner. Needs feature scaling.
+> KNN = find K nearest training points, take their vote. Lazy learner — no training, all work at prediction. Must scale features.
 
 ---
 
 ### SVM (Support Vector Machine)
-**Task:** Classification (and regression).
 
-**Core idea:** Find the **hyperplane** that best separates two classes with the **maximum margin**.
+**Task:** Classification (primarily) and Regression.
 
+**Definition:** SVM finds the **optimal hyperplane** (decision boundary) that separates two classes with the **maximum margin** — the widest possible gap between the two classes.
+
+**Core Concepts:**
 ```
-Class A  ●  ●                      ● ● Class B
-              ●  | (hyperplane) |  ●
-         support  margin   support
-         vector           vector
+    Class A ● ●                          ● ● Class B
+              ●  |--- margin ---|  ●
+           Support              Support
+           Vector  hyperplane   Vector
 ```
-
-- **Hyperplane:** Decision boundary separating classes
-- **Margin:** Distance between hyperplane and the nearest data points of each class. SVM maximises this.
-- **Support Vectors:** The data points closest to the hyperplane — they "support" (define) it
+- **Hyperplane:** The decision boundary that separates classes (a line in 2D, a plane in 3D, a hyperplane in N-D)
+- **Margin:** The distance between the hyperplane and the nearest data points of each class. SVM **maximizes** this.
+- **Support Vectors:** The data points closest to the hyperplane — they alone define (support) the hyperplane position
 
 **Kernel Trick:**
-When data is not linearly separable in original space, transform it into a higher dimension where it IS separable — without computing the transformation explicitly.
+When data is **not linearly separable** in original space — SVM uses a kernel to **implicitly map data to a higher dimension** where it becomes linearly separable.
 
-| Kernel | Use case |
+| Kernel | Use Case |
 |---|---|
-| **Linear** | Data linearly separable |
-| **RBF (Gaussian)** | Most common, works for complex boundaries |
-| **Polynomial** | Image recognition |
+| **Linear** | Data is linearly separable |
+| **RBF / Gaussian** | Most common — handles complex, non-linear boundaries |
+| **Polynomial** | Useful in image recognition, computer vision |
 
-**Pros:** Effective in high dimensions, robust with small datasets
-**Cons:** Slow on large datasets, hard to interpret
+**Pros vs Cons:**
+| Pros | Cons |
+|---|---|
+| Effective in high-dimensional spaces | Very slow on large datasets |
+| Works well with small datasets | Hard to interpret (black box with kernels) |
+| Robust to outliers (only support vectors matter) | Requires feature scaling |
+| Powerful with kernel trick for non-linear data | Sensitive to choice of kernel and C parameter |
 
 **One-Line Revision:**
-> SVM = finds hyperplane with maximum margin. Uses kernel trick for non-linear data.
+> SVM = finds hyperplane with maximum margin between classes. Kernel trick handles non-linear data.
 
 ---
 
 ### Naive Bayes
-**Task:** Classification — especially text classification.
 
-**Core idea:** Uses **Bayes' Theorem** to calculate the probability of each class, then picks the most probable one.
+**Task:** Classification — especially **text classification**.
 
+**Definition:** Naive Bayes is a **probabilistic classifier** based on **Bayes' Theorem**. It calculates the probability of each class given the input features, and predicts the most probable class.
+
+**Bayes' Theorem:**
 ```
-Bayes' Theorem:
-P(Class | Features) = P(Features | Class) × P(Class) / P(Features)
+P(Class | Features) = [ P(Features | Class) × P(Class) ] / P(Features)
+
+Where:
+  P(Class | Features) = Posterior: probability of class given features (what we want)
+  P(Features | Class) = Likelihood: how probable are features given the class
+  P(Class)            = Prior: how common is this class overall
+  P(Features)         = Evidence: normalisation constant
 ```
 
-**"Naive" assumption:** All features are **conditionally independent** given the class.
-In reality they rarely are, but it still works surprisingly well for text.
+**"Naive" Assumption:**
+All features are **conditionally independent** given the class.
+In reality they rarely are (words in a sentence are correlated), but Naive Bayes still works surprisingly well for text.
 
-**Why popular for NLP?**
-- Works great with word counts (bag of words)
-- Very fast — no iterative training
-- Handles high-dimensional data (thousands of words)
+**Why it's popular for NLP / Text:**
+- Works perfectly with word counts (Bag of Words)
+- Extremely fast — no iterative training, just counting
+- Handles very high-dimensional data (vocabulary of 50,000+ words)
+- Robust to irrelevant features
 
 **Example:**
-> Is this email Spam? Given it contains "discount", "offer", "click" → P(Spam | these words) is very high.
+```
+Email contains words: "discount", "offer", "limited time"
+
+P(Spam | these words) → calculated using Bayes
+P(Not Spam | these words) → calculated
+
+→ Predict: whichever probability is higher
+```
+
+**Types of Naive Bayes:**
+| Type | Best For |
+|---|---|
+| **Multinomial NB** | Text classification (word counts) |
+| **Bernoulli NB** | Binary features (word present/absent) |
+| **Gaussian NB** | Continuous features (assumes normal distribution) |
 
 **One-Line Revision:**
-> Naive Bayes = Bayes theorem + assumes features are independent. Best for text classification.
+> Naive Bayes = applies Bayes' theorem + assumes feature independence. Extremely fast, great for text classification.
 
 ---
 
 ## 4. Unsupervised Learning
 
-### K-Means Clustering
-**Task:** Group unlabelled data into K clusters.
+### Definition
+Unsupervised Learning is a type of ML where the model is trained on **data with no labels** (no correct answers given).
+The algorithm must find hidden patterns, structure, or groupings entirely on its own.
 
-**How it works:**
-1. Pick K random points as initial centroids
-2. Assign each data point to its nearest centroid
-3. Recalculate each centroid as the mean of its assigned points
-4. Repeat steps 2–3 until centroids stop moving (convergence)
+**Key difference from Supervised Learning:**
+- Supervised: You know the output → model learns to predict it
+- Unsupervised: No output given → model discovers structure on its own
+
+---
+
+### K-Means Clustering
+
+**Task:** Partition unlabelled data into **K distinct groups (clusters)** where data points in the same cluster are similar to each other.
+
+**Definition:** K-Means is an iterative algorithm that assigns data points to the nearest cluster centroid, then updates centroids, until assignments stabilise.
+
+**Step-by-Step Algorithm:**
+```
+Step 1: Choose K (number of clusters)
+Step 2: Randomly initialise K centroids (cluster centers)
+Step 3: Assign each data point to its NEAREST centroid
+        (using Euclidean distance)
+Step 4: Recalculate each centroid = mean of all points assigned to it
+Step 5: Repeat Steps 3–4 until centroids no longer move (convergence)
+```
 
 **Choosing K — The Elbow Method:**
-Plot Within-Cluster Sum of Squares (WCSS) vs K.
-The "elbow" (where the curve bends sharply) = optimal K.
+Plot WCSS (Within-Cluster Sum of Squares) against K.
+WCSS measures how compact each cluster is. As K increases, WCSS decreases.
+The "elbow" is where adding more K gives diminishing returns — that's the optimal K.
 
 ```
 WCSS
-│\            ← Keep going, big improvement
+│\
 │  \          
-│   \         
-│    ●←─── Elbow: this is optimal K
+│   \
+│    ●←─── Elbow: optimal K (diminishing returns after here)
 │      \_ _ _ _ _ _ _
 └──────────────────── K
 ```
 
-**Limitations:**
-- Must specify K in advance
-- Sensitive to outliers (centroid pulled toward them)
-- Only works well for spherical clusters
+**Limitations of K-Means:**
+| Limitation | Explanation |
+|---|---|
+| Must specify K upfront | You need to know how many clusters exist |
+| Sensitive to outliers | A single outlier can shift the centroid significantly |
+| Assumes spherical clusters | Fails with elongated or irregular cluster shapes |
+| Sensitive to initialisation | Different starting centroids can give different results |
+
+**Real-World Uses:** Customer segmentation, document grouping, image compression, market research.
 
 **One-Line Revision:**
-> K-Means = assign points to K centroids, recalculate until stable. Use Elbow Method to pick K.
+> K-Means = assign points to K centroids, recalculate until stable. Use Elbow Method to find optimal K.
 
 ---
 
 ### Hierarchical Clustering
-**Task:** Build a hierarchy of clusters — no need to specify K in advance.
 
-**Types:**
-- **Agglomerative (bottom-up):** Start with each point as its own cluster, merge closest pairs repeatedly until one cluster remains.
-- **Divisive (top-down):** Start with all points in one cluster, split recursively.
+**Task:** Build a **nested hierarchy of clusters** without needing to specify K in advance.
 
-**Dendrogram:** A tree diagram showing the merge hierarchy. Cut at any height to get any number of clusters.
+**Definition:** Hierarchical Clustering creates a tree of cluster merges (or splits) called a **dendrogram**, which you can cut at any level to get any desired number of clusters.
 
+**Two approaches:**
+| Type | Direction | How |
+|---|---|---|
+| **Agglomerative (bottom-up)** | Each point starts as its own cluster | Repeatedly merge the two closest clusters until one cluster remains |
+| **Divisive (top-down)** | All points start in one cluster | Repeatedly split the cluster into smaller ones |
+
+> Agglomerative is the most commonly used type.
+
+**Dendrogram:** A tree diagram visualizing the cluster merge hierarchy.
 ```
-         ┌──────────────────┐
-         │                  │
-      ┌──┴──┐            ┌──┴──┐
-      │     │            │     │
-     A B   C D          E F   G
+         ┌───────────────────┐
+         │                   │
+      ┌──┴──┐           ┌──┴──┐
+      │      │           │      │
+     A B     C D         E F     G
+
+Cut at different heights → get 2, 3, 4 clusters, etc.
 ```
 
-**Pros:** No need to specify K, reveals hierarchical structure
-**Cons:** Slow for large data (O(n²) or O(n³))
+**Linkage criteria (how to measure distance between clusters):**
+| Linkage | Measures distance between... |
+|---|---|
+| **Single** | Nearest points in each cluster |
+| **Complete** | Farthest points in each cluster |
+| **Average** | Average of all pairwise distances |
+| **Ward** | Minimizes within-cluster variance (most common) |
+
+**Pros vs Cons:**
+| Pros | Cons |
+|---|---|
+| No need to specify K in advance | O(n²) or O(n³) time — slow for large datasets |
+| Dendrogram gives visual insight into data structure | Memory intensive |
+| Works with any distance metric | Less scalable than K-Means |
 
 **One-Line Revision:**
-> Hierarchical Clustering = build a tree of merges (dendrogram). Cut tree to get any K clusters.
+> Hierarchical Clustering = builds a dendrogram tree of merges. Cut the tree at any level to get K clusters.
 
 ---
 
 ### PCA (Principal Component Analysis)
-**Task:** Dimensionality Reduction — reduce number of features while retaining most information.
+
+**Task:** Dimensionality Reduction — reduce the number of features while retaining as much useful information as possible.
+
+**Definition:** PCA is a technique that transforms data into a new coordinate system where the axes (principal components) are ordered by the amount of variance they explain. By keeping only the top N components, you reduce dimensions while losing minimal information.
 
 **How it works:**
-1. Find directions (principal components) of maximum variance in the data
-2. Project data onto the top N components
-3. Discard the rest — you've reduced dimensions while keeping most variance
-
-**Why use it?**
-- Removes redundant/correlated features
-- Speeds up training
-- Helps visualise high-dimensional data (reduce to 2D/3D for plotting)
-- Reduces curse of dimensionality
+```
+Step 1: Standardize the data (mean = 0, std = 1)
+Step 2: Compute the covariance matrix → shows relationships between features
+Step 3: Find eigenvectors (directions of maximum variance)
+        = these are the principal components
+Step 4: Rank components by how much variance they explain
+Step 5: Keep top N components that explain 90–95% of total variance
+Step 6: Project original data onto those N components
+        → reduced-dimension dataset ready for ML
+```
 
 **Variance Explained:**
-Each principal component explains some % of total variance. Keep enough components to explain 90–95% of variance.
+- Each principal component explains a % of total variance
+- PC1 explains the most, PC2 second most, and so on
+- Keep enough components to explain 90–95% of total variance
+
+**Why use PCA?**
+| Benefit | Effect |
+|---|---|
+| Remove redundant features | Correlated features merged into one component |
+| Speed up training | Fewer dimensions = faster algorithms |
+| Visualize high-dimensional data | Reduce to 2D or 3D for plotting |
+| Reduce curse of dimensionality | Less sparse feature space |
+
+> [!IMPORTANT]
+> PCA is **unsupervised** — it uses only the feature values (X), not the labels (y).
+> It transforms features into new axes. The new axes (PCs) are combinations of original features — harder to interpret.
 
 **One-Line Revision:**
-> PCA = reduce dimensions by projecting onto directions of maximum variance. Keeps 95% of information.
+> PCA = project data onto directions of maximum variance to reduce dimensions while keeping 90–95% of information.
 
 ---
 
 ### Anomaly Detection
-**Task:** Find data points that are significantly different from the norm (outliers).
 
-**Real-world uses:**
-- Fraud detection (unusual transaction patterns)
-- Network intrusion detection (unusual traffic)
-- Manufacturing defects (products outside tolerance)
-- Healthcare (unusual vital sign readings)
+**Task:** Identify data points that are **significantly different from the norm** (outliers/anomalies).
+
+**Definition:** Anomaly Detection is the process of finding rare data points that deviate substantially from the expected pattern. These anomalies are often the most interesting or dangerous points.
+
+**Real-World Use Cases:**
+| Domain | Anomaly Example |
+|---|---|
+| **Finance** | Unusual credit card transaction → fraud |
+| **Cybersecurity** | Unusual network traffic → intrusion attack |
+| **Manufacturing** | Product dimension outside tolerance → defect |
+| **Healthcare** | Sudden drop in blood pressure → medical alert |
+| **IoT/Sensors** | Machine temperature spike → equipment failure |
 
 **Methods:**
+| Method | How It Works | Best For |
+|---|---|---|
+| **Z-score / IQR** | Flag points beyond 3 standard deviations or IQR bounds | Simple, univariate (single feature) |
+| **Isolation Forest** | Anomalies are easier to isolate — require fewer splits in random trees | High-dimensional data |
+| **Autoencoder (Deep Learning)** | Normal data reconstructs well; anomalies have high reconstruction error | Complex patterns, images |
+| **DBSCAN (Density-based)** | Anomalies are points in low-density regions | Non-spherical cluster shapes |
+
+**One-Line Revision:**
+> Anomaly Detection = find rare, unusual data points. Used in fraud detection, security monitoring, and healthcare.
+
+---
+
+## 5. Classification vs Regression
+
+### Definition
+Both are **supervised learning** problems, but they differ in the **type of output** they predict:
+- **Classification** → predicts a **discrete category/label** (finite set of classes)
+- **Regression** → predicts a **continuous numeric value** (any number on a scale)
+
+### Why It Matters
+Choosing the wrong problem type leads to:
+- Wrong algorithm selection
+- Wrong evaluation metrics
+- Wrong interpretation of results
+
+### Real-World Comparison
+| Scenario | Question | Type | Output Example |
+|---|---|---|---|
+| Loan application | Will this customer default? | Classification | Yes / No |
+| House pricing | What is this house worth? | Regression | ₹85,00,000 |
+| Medical diagnosis | Does this patient have cancer? | Classification | Positive / Negative |
+| Blood sugar prediction | What will blood sugar be next month? | Regression | 145 mg/dL |
+| Email filtering | Is this email spam? | Classification | Spam / Not Spam |
+| Weather forecasting | What will tomorrow's temperature be? | Regression | 32°C |
+
+### Full Comparison Table
+| Aspect | Classification | Regression |
+|---|---|---|
+| **Output type** | Discrete label/category | Continuous number |
+| **Output examples** | Spam/Not Spam, Dog/Cat/Bird | Price, Temperature, Score |
+| **Decision boundary** | Separates classes | Fits a curve/line |
+| **Algorithms** | Logistic Regression, Decision Tree, Random Forest, XGBoost, SVM, Naive Bayes, KNN | Linear Regression, Ridge, Lasso, SVR, XGBoost |
+| **Evaluation metrics** | Accuracy, Precision, Recall, F1, AUC-ROC | MAE, MSE, RMSE, R² |
+
+> **Note:** Some algorithms like Decision Tree and XGBoost can handle **both** classification and regression by switching the loss function.
+
+### 30-Second Interview Answer
+> Classification predicts a discrete category like Yes/No, Spam/Ham, or Dog/Cat/Bird.
+> Regression predicts a continuous number like house price, blood sugar level, or temperature.
+> The same data can lead to both problems depending on what question you ask — "Will blood sugar exceed 150?" (classification) vs "What will blood sugar be?" (regression).
+
+### One-Line Revision
+> Classification = predict a label (category). Regression = predict a number (continuous value).
+
+---
+
+## 6. Features vs Labels
+
+### Definition
+- **Features (X)** = The **input variables** given to the model — the information that describes each data point
+- **Label (y)** = The **output variable** the model is trained to predict — the correct answer
+
+### Real-World Example
+```
+Features (Input Columns X)             │ Label (Output y)
+─────────────────────────────────────│──────────────────────
+Age | Blood Pressure | Sugar | BMI    │ Disease: Yes / No
+```
+
+### Key Terms
+| Term | Also Called | Meaning |
+|---|---|---|
+| **Feature** | Independent variable, predictor, input, X | Data column used to describe the example |
+| **Label** | Dependent variable, target, output, y | The value the model is trained to predict |
+| **Feature Vector** | | All feature values for one data point, as a vector |
+| **Feature Engineering** | | Creating new/better features from raw data |
+| **Feature Selection** | | Choosing the most relevant features, removing irrelevant ones |
+
+### Why Features Matter
+- The model can only learn from what you give it — wrong features = wrong predictions
+- Irrelevant features add noise and hurt accuracy
+- Engineered features often improve performance more than changing the algorithm
+
+### Feature Selection Methods
 | Method | How |
 |---|---|
-| **Statistical (Z-score, IQR)** | Flag points far from mean/median |
-| **Isolation Forest** | Anomalies are easier to isolate — shorter paths in random trees |
-| **Autoencoder** | Normal data reconstructs well; anomalies have high reconstruction error |
+| **Correlation** | Remove features highly correlated with each other (multicollinearity) |
+| **Feature Importance** | Tree models (Random Forest, XGBoost) rank feature usefulness |
+| **Wrapper methods** | Try all subsets, pick best (expensive but thorough) |
+| **L1 Regularization (Lasso)** | Automatically zeros out unimportant feature weights |
 
-**One-Line Revision:**
-> Anomaly Detection = find outliers. Used in fraud detection, system monitoring, healthcare.
-
----
-
-## 2. Classification
-
-**Easy Definition:**
-Classification is a supervised ML task where the model predicts which **category** an input belongs to.
-The output is always one of a fixed set of labels.
-
-**Why it is used:**
-When the answer is a category, not a number.
-"Is this email spam?" "Does this patient have disease?" — these are classification problems.
-
-**Real-World Example:**
-> A bank classifies each loan application as **Approved** or **Rejected** based on income, credit score, and age.
-
-**30-Second Interview Answer:**
-> Classification is a supervised learning task where the model predicts which category or class an input belongs to.
-> It learns from labelled data and draws a decision boundary to separate classes.
-> Examples: spam detection, disease diagnosis, sentiment analysis.
-
-**Common Follow-up Questions:**
-- What is binary vs multi-class classification?
-- What algorithms are used for classification?
-- What is a confusion matrix?
-
-**One-Line Revision:**
-> Classification = predict a category (Yes/No, Spam/Ham, Disease/Healthy).
-
----
-
-**Binary Classification** = Only 2 possible outputs (Yes/No, 0/1)
-**Multi-class Classification** = 3 or more outputs (Dog/Cat/Bird, Diabetes/Hypertension/Normal)
-
-**Common Classification Algorithms:**
-Logistic Regression, Decision Tree, Random Forest, XGBoost, SVM, Naive Bayes, KNN
-
----
-
-## 3. Classification vs Regression
-
-**Easy Definition:**
-Both are supervised learning.
-**Classification** predicts a category. **Regression** predicts a number.
-
-**Why it matters:**
-Choose wrong type → wrong algorithm → wrong evaluation metric → bad results.
-
-**Real-World Example:**
-> Classification → "Will this patient get diabetes? Yes or No?"
-> Regression → "What will this patient's blood sugar level be next month? → 145 mg/dL"
-
-**30-Second Interview Answer:**
-> Classification predicts a discrete category like Yes/No or Spam/Ham.
-> Regression predicts a continuous number like price, temperature, or score.
-> Same data — different questions lead to different problem types.
-
-**Comparison Table:**
-
-| | Classification | Regression |
-|---|---|---|
-| **Output** | Category / Label | Number |
-| **Example answer** | Disease: Yes | Blood sugar: 145 |
-| **Algorithms** | Logistic Regression, XGBoost, SVM | Linear Regression, Ridge, Lasso |
-| **Evaluation** | Accuracy, Precision, Recall, F1 | MAE, RMSE, R² |
-
-**Common Follow-up Questions:**
-- Give an example of each from your project.
-- Can the same algorithm do both? (Some can — Decision Tree, XGBoost)
-
-**One-Line Revision:**
-> Classification = predict a label. Regression = predict a number.
-
----
-
-## 4. Features vs Labels
-
-**Easy Definition:**
-**Features** = The input data you feed the model (columns that describe the example).
-**Labels** = The output you want the model to predict (the correct answer).
-
-**Why it matters:**
-Without the right features, no model will work well.
-Without a label, you can't do supervised learning.
-
-**Real-World Example:**
-```
-Features (Input)                    Label (Output)
-Age | Blood Pressure | Sugar | BMI  →  Disease: Yes / No
-```
-
-**30-Second Interview Answer:**
-> Features are the input variables — the information given to the model.
+### 30-Second Interview Answer
+> Features are the input variables — the information given to the model to make a prediction.
 > Labels are the output — what the model is trained to predict.
-> In a healthcare model, features are patient vitals and the label is disease present or not.
+> In a healthcare model, features might be patient age, blood pressure, BMI, and sugar level. The label would be whether the patient has diabetes (Yes/No).
+> The model learns a mapping from features (X) to the label (y).
 
-**Key Terms:**
-- Features = also called **independent variables** or **X**
-- Label = also called **dependent variable**, **target**, or **y**
-- **Feature Engineering** = creating new or better features to improve model accuracy
-
-**Common Follow-up Questions:**
-- What features did you use in your project?
-- How do you select which features to use?
-- What is feature engineering?
-
-**One-Line Revision:**
-> Features = input (X). Label = output (y). Model learns to map X → y.
+### One-Line Revision
+> Features = input (X). Label = output (y). ML = learn to map X → y from training examples.
 
 ---
 
 ## 7. Training, Validation & Test Sets
 
-**Easy Definition:**
-- **Training data** = examples the model learns from (fits its parameters)
-- **Validation data** = held-out set used to tune the model and choose hyperparameters during development
-- **Test data** = completely unseen data used only at the end to report final real-world performance
+### Definition
+- **Training Set:** The data the model **learns from** during training — weights/parameters are adjusted based on this
+- **Validation Set:** A held-out set used during development to **tune hyperparameters** and choose the best model
+- **Test Set:** Completely unseen data used **only once at the end** to report final real-world performance
 
-**Why it is used:**
-If you test on the same data you trained on → model gets 100% but hasn't really learned.
-The split reveals real performance on unseen data.
+### Why This Split Is Essential
+If you evaluate on the same data you trained on:
+- Model scores 99% but has memorised examples — it hasn't actually learned
+- Real-world performance will be much worse
+- You have **no honest measure** of generalisation
 
-**The Three-Way Split:**
+### The Three-Way Split
 ```
 All Data (100%)
     ↓
-├── Training Set (70%)    ← Model learns here
-├── Validation Set (15%)  ← Tune hyperparameters, pick best model
-└── Test Set (15%)        ← Final evaluation ONLY (touch once!)
+├── Training Set   (60–80%)   ← Model learns weights/parameters here
+├── Validation Set (10–20%)   ← You tune hyperparameters, pick best model
+└── Test Set       (10–20%)   ← Final evaluation ONLY — touch just once!
 ```
 
-**Purpose of each:**
-| Set | Used by | Purpose |
+### Purpose of Each Set
+| Set | Who Uses It | Purpose |
 |---|---|---|
-| **Training** | Model | Fit weights/parameters |
-| **Validation** | You (developer) | Tune model, compare algorithms |
+| **Training** | The model | Fit parameters (weights, biases) |
+| **Validation** | You (the developer) | Compare algorithms, tune hyperparameters, detect overfitting |
 | **Test** | Final evaluation | Honest estimate of real-world performance |
 
-**Real-World Example:**
-> Like a student studying from a textbook (training), doing practice tests (validation), and then sitting the final exam (test).
+> [!CAUTION]
+> Never tune your model based on test set performance. That leaks test data into the development process and gives an inflated, dishonest estimate.
 
-**30-Second Interview Answer:**
-> We split our dataset into three parts — training, validation, and test.
-> The model learns from training data, we tune hyperparameters using validation data, and report final performance on the test set which is never seen during development.
-> This gives us an honest estimate of real-world performance.
+### Real-World Analogy
+> **Student preparing for an exam:**
+> - Training = studying from textbooks (learning material)
+> - Validation = doing practice tests (tuning understanding, identifying weak spots)
+> - Test = the final exam (honest, unseen evaluation — taken only once)
 
-**Cross-Validation:**
-> Split data into k folds. Train on k-1 folds, validate on 1. Repeat k times. Average the k results.
-> More reliable than a single split — especially when data is limited.
-> **Stratified K-Fold:** ensures each fold has the same class distribution. Better for imbalanced data.
+### Cross-Validation (K-Fold)
+When data is limited, a single validation split may not be reliable. Use **K-Fold Cross-Validation** instead:
 
-**One-Line Revision:**
+```
+Data split into K folds (e.g., K=5):
+
+Fold 1: [Test] [Train] [Train] [Train] [Train]
+Fold 2: [Train] [Test] [Train] [Train] [Train]
+Fold 3: [Train] [Train] [Test] [Train] [Train]
+Fold 4: [Train] [Train] [Train] [Test] [Train]
+Fold 5: [Train] [Train] [Train] [Train] [Test]
+
+Final score = average of all 5 validation scores
+```
+
+**Benefits:**
+- More reliable estimate — every sample used for both training and validation
+- Reduces variance of performance estimate
+- Essential when dataset is small
+
+**Stratified K-Fold:** Ensures each fold has the same class distribution as the full dataset. Use for imbalanced data.
+
+### 30-Second Interview Answer
+> We split data into three sets — training, validation, and test.
+> The model learns from training data. We tune hyperparameters using validation data to pick the best model.
+> Final performance is reported using the test set, which is never seen during development.
+> For small datasets, we use K-Fold Cross-Validation which averages performance across K different splits for a more reliable estimate.
+
+### One-Line Revision
 > Train = learn. Validation = tune. Test = final honest evaluation. Never tune on test data.
 
 ---
 
 ## 8. Confusion Matrix
 
-**Easy Definition:**
-A confusion matrix is a 2×2 table showing how a binary classifier's predictions compare to the actual ground truth.
+### Definition
+A Confusion Matrix is a **table that summarises the prediction results** of a classification model by comparing predicted labels against actual (true) labels.
+For binary classification, it is a 2×2 matrix with 4 outcomes.
 
+### The 4 Outcomes
 ```
-                    Predicted: YES     Predicted: NO
-Actual: YES    │  TP (True Positive)  │  FN (False Negative) │  ← Model missed real positives
-Actual: NO     │  FP (False Positive) │  TN (True Negative)  │  ← Model cried wolf
-```
-
-| Term | Meaning | Example (Disease detection) |
-|---|---|---|
-| **TP** — True Positive | Predicted YES, actually YES | Correctly identified sick patient |
-| **TN** — True Negative | Predicted NO, actually NO | Correctly identified healthy patient |
-| **FP** — False Positive | Predicted YES, actually NO | Wrongly flagged healthy as sick |
-| **FN** — False Negative | Predicted NO, actually YES | Missed a real sick patient ← DANGEROUS |
-
-**Memory Trick:**
-> **False Negative** = model said "No" (Negative) but it was actually Yes → the scariest error in healthcare.
-> **False Positive** = model said "Yes" but it was actually No → annoying but recoverable.
-
-**All metrics derived from confusion matrix:**
-```
-Accuracy  = (TP + TN) / (TP + TN + FP + FN)
-Precision = TP / (TP + FP)
-Recall    = TP / (TP + FN)
-F1        = 2 × (Precision × Recall) / (Precision + Recall)
+                      Predicted: POSITIVE   Predicted: NEGATIVE
+Actual: POSITIVE  │  TP (True Positive)   │  FN (False Negative)  │
+Actual: NEGATIVE  │  FP (False Positive)  │  TN (True Negative)   │
 ```
 
-**30-Second Interview Answer:**
-> A confusion matrix shows the 4 outcomes of a binary classifier: TP, TN, FP, FN.
-> All standard metrics — accuracy, precision, recall, F1 — are derived from these 4 values.
-> It helps you understand not just how often the model is right, but what kind of mistakes it makes.
+| Term | Full Name | What It Means | Disease Detection Example |
+|---|---|---|---|
+| **TP** | True Positive | Model predicted YES, and it actually IS YES | Correctly identified a sick patient |
+| **TN** | True Negative | Model predicted NO, and it actually IS NO | Correctly identified a healthy patient |
+| **FP** | False Positive | Model predicted YES, but it's actually NO | Wrongly flagged a healthy patient as sick (Type I Error) |
+| **FN** | False Negative | Model predicted NO, but it's actually YES | Missed a real sick patient \u2190 **most dangerous** (Type II Error) |
 
-**One-Line Revision:**
-> Confusion Matrix: TP (correct yes), TN (correct no), FP (false alarm), FN (missed real positive).
+### Memory Trick
+> **False Positive** = model said "Yes (Positive)" but was wrong \u2192 false alarm (annoying but recoverable)
+> **False Negative** = model said "No (Negative)" but was wrong \u2192 missed real case (dangerous in healthcare)
+
+### All Metrics Derived from Confusion Matrix
+```
+Accuracy  = (TP + TN) / (TP + TN + FP + FN)      \u2190 overall correctness
+Precision = TP / (TP + FP)                         \u2190 of all predicted positives, how many were right?
+Recall    = TP / (TP + FN)                         \u2190 of all actual positives, how many did we catch?
+F1        = 2 \u00d7 (Precision \u00d7 Recall) / (Precision + Recall)   \u2190 harmonic mean of Precision and Recall
+```
+
+### 30-Second Interview Answer
+> A confusion matrix displays the 4 prediction outcomes of a binary classifier: TP, TN, FP, FN.
+> All key metrics \u2014 accuracy, precision, recall, F1 \u2014 are calculated from these 4 values.
+> It's crucial because accuracy alone can be misleading; the confusion matrix reveals what *kind* of errors the model makes.
+
+### One-Line Revision
+> Confusion Matrix = 2\u00d72 table of TP, TN, FP, FN. All classification metrics derive from it.
 
 ---
 
 ## 9. Accuracy
 
-**Easy Definition:**
-Accuracy = percentage of total predictions that were correct.
-The most basic evaluation metric.
+### Definition
+**Accuracy** = the fraction of total predictions that are **correct** (both true positives and true negatives).
 
-**Why it is used:**
-Quick, easy-to-understand measure of how often the model is right overall.
+```
+Accuracy = (TP + TN) / (TP + TN + FP + FN)
+```
 
-**Real-World Example:**
-> Model predicts 90 out of 100 emails correctly → Accuracy = 90%.
+**Example:** Model makes 100 predictions, 90 are correct \u2192 Accuracy = 90%
 
-**30-Second Interview Answer:**
-> Accuracy is the ratio of correct predictions to total predictions.
-> It is simple and intuitive but can be misleading with imbalanced data.
-> For example, if 95% of patients are healthy, a model predicting "healthy" always gives 95% accuracy — but it's useless.
+### When Accuracy is Useful
+- Classes are roughly **balanced** (similar number of positive and negative examples)
+- You want a quick, high-level performance check
 
-**When Accuracy Fails:**
-> If dataset is imbalanced (one class is much more common), accuracy is not enough.
-> Use Precision, Recall, and F1 instead.
+### When Accuracy FAILS \u2014 The Imbalanced Data Problem
+```
+Example: Disease dataset with 950 healthy and 50 sick patients
 
-**One-Line Revision:**
-> Accuracy = correct predictions / total predictions. Unreliable on imbalanced data.
+A dumb model that ALWAYS predicts "Healthy":
+  Accuracy = 950/1000 = 95%  \u2190 looks great!
+  But it catches ZERO sick patients \u2190 completely useless!
+```
+
+> [!WARNING]
+> On imbalanced data, accuracy is misleading. Always check Precision, Recall, and F1.
+
+### 30-Second Interview Answer
+> Accuracy measures what fraction of predictions the model got right overall.
+> It's simple and intuitive, but fails badly on imbalanced datasets.
+> If 95% of samples belong to one class, a model that always predicts that class gets 95% accuracy \u2014 yet misses all rare cases entirely.
+
+### One-Line Revision
+> Accuracy = correct predictions \u00f7 total predictions. Misleading on imbalanced data.
 
 ---
 
-## 7. Precision
+## 10. Precision
 
-**Easy Definition:**
-Precision = out of all the times the model said "Yes", how many were actually "Yes"?
-It measures how trustworthy the model's positive predictions are.
+### Definition
+**Precision** = of all cases where the model **predicted YES (Positive)**, how many were **actually** YES?
 
-**Why it is used:**
-When **false positives are costly** — you don't want the model crying wolf.
+```
+Precision = TP / (TP + FP)
+```
 
-**Real-World Example:**
-> Spam filter — if the model marks too many legitimate emails as spam (false positives), users get angry.
-> High precision = when model says "Spam", it's almost always actually spam.
+Precision answers: **"When the model says YES, can you trust it?"**
 
-**30-Second Interview Answer:**
+### When to Prioritise Precision
+When **False Positives are costly** \u2014 you don't want false alarms.
+
+| Scenario | Why Precision Matters |
+|---|---|
+| **Spam Filter** | Marking a legitimate email as spam (FP) is annoying \u2014 user loses important email |
+| **Legal AI** | Falsely accusing an innocent person (FP) is a serious injustice |
+| **Financial Fraud Alert** | Too many false fraud alerts disrupt genuine customers |
+
+### Trade-off with Recall
+- **Increase threshold** \u2192 Model predicts YES less often \u2192 Precision \u2191, Recall \u2193
+- **Decrease threshold** \u2192 Model predicts YES more often \u2192 Recall \u2191, Precision \u2193
+
+### 30-Second Interview Answer
 > Precision measures how many of the model's positive predictions were actually correct.
-> It is important when the cost of a false alarm is high.
-> For example, in a spam filter, low precision means important emails are deleted.
+> High precision means the model rarely raises false alarms.
+> It's most important when the cost of a false positive is high, like in spam filtering or legal systems.
 
-**One-Line Revision:**
-> Precision = when model says YES, is it usually right?
-
----
-
-## 8. Recall
-
-**Easy Definition:**
-Recall = out of all the actual "Yes" cases, how many did the model correctly catch?
-It measures how good the model is at finding all real positives.
-
-**Why it is used:**
-When **missing a real positive is dangerous** — you don't want to miss actual cases.
-
-**Real-World Example:**
-> Cancer detection — if the model misses real cancer patients (false negatives), that is life-threatening.
-> High recall = model catches most actual cancer cases, even if it occasionally flags healthy people too.
-
-**30-Second Interview Answer:**
-> Recall measures how many actual positive cases the model correctly identified.
-> It matters when missing a real case is more dangerous than a false alarm.
-> In healthcare and disease detection, recall is usually the most important metric.
-
-**Common Follow-up Questions:**
-- When would you choose Recall over Precision?
-- What is the trade-off between Precision and Recall?
-
-> **Trade-off:** Increasing one usually decreases the other.
-> Lowering the prediction threshold → catches more positives (higher Recall, lower Precision).
-> Raising the threshold → fewer false alarms (higher Precision, lower Recall).
-
-**One-Line Revision:**
-> Recall = did the model catch all real positives? Critical in healthcare.
+### One-Line Revision
+> Precision = TP / (TP + FP). When model says YES, how often is it right?
 
 ---
 
-## 9. F1 Score
+## 11. Recall (Sensitivity / True Positive Rate)
 
-**Easy Definition:**
-F1 Score is the **balance between Precision and Recall**.
-It gives a single number that summarises both.
-Used when you need to care about both — not just one.
+### Definition
+**Recall** = of all actual **YES (Positive)** cases, how many did the model **correctly identify**?
 
-**Why it is used:**
-When data is imbalanced AND both false positives and false negatives matter.
+```
+Recall = TP / (TP + FN)
+```
 
-**Real-World Example:**
-> In healthcare, you want high recall (don't miss sick patients) but also reasonable precision (don't over-alarm).
-> F1 Score captures this balance in one number.
+Recall answers: **"Did the model catch ALL the real positive cases?"**
 
-**30-Second Interview Answer:**
+### When to Prioritise Recall
+When **False Negatives are dangerous** \u2014 you cannot afford to miss real cases.
+
+| Scenario | Why Recall Matters |
+|---|---|
+| **Cancer Detection** | Missing a real cancer patient (FN) could be fatal |
+| **COVID Testing** | Missing an infected person spreads the disease |
+| **Fraud Detection** | Missing a real fraud transaction causes financial loss |
+| **Security Systems** | Missing an intruder is catastrophic |
+
+### Precision-Recall Trade-off
+```
+Lower threshold (e.g., 0.3):
+  \u2192 Model flags more cases as positive
+  \u2192 Higher Recall (catches more real positives)
+  \u2192 Lower Precision (more false alarms)
+
+Higher threshold (e.g., 0.7):
+  \u2192 Model is more conservative about predicting positive
+  \u2192 Higher Precision (fewer false alarms)
+  \u2192 Lower Recall (misses more real positives)
+```
+
+### 30-Second Interview Answer
+> Recall measures what fraction of actual positive cases the model correctly detected.
+> Missing a real positive is the most dangerous type of error in healthcare.
+> So in disease detection, we prioritise recall \u2014 we'd rather have some false alarms than miss a real sick patient.
+
+### One-Line Revision
+> Recall = TP / (TP + FN). Did the model catch all real positives? Critical in healthcare.
+
+---
+
+## 12. F1 Score
+
+### Definition
+**F1 Score** is the **harmonic mean of Precision and Recall**. It balances both metrics into a single number.
+
+```
+F1 = 2 \u00d7 (Precision \u00d7 Recall) / (Precision + Recall)
+```
+
+**Why harmonic mean (not arithmetic mean)?**
+Harmonic mean punishes extreme imbalance \u2014 if either Precision or Recall is very low, F1 will be low too.
+Example: Precision=1.0, Recall=0.01 \u2192 Arithmetic mean = 0.505 (looks ok) but Harmonic mean (F1) = 0.02 (correctly reflects failure).
+
+### When to Use F1
+- Data is **imbalanced** (unequal class distribution)
+- Both Precision and Recall matter (neither FP nor FN should dominate)
+- You want a **single balanced metric** for model comparison
+
+### Metric Selection Guide
+```
+\u2503 Situation                           \u2503 Metric to Use         \u2503
+\u2503 Classes roughly balanced            \u2503 Accuracy              \u2503
+\u2503 Missing positives is dangerous      \u2503 Recall (healthcare)   \u2503
+\u2503 False alarms are costly             \u2503 Precision (spam)      \u2503
+\u2503 Imbalanced data, both errors matter \u2503 F1 Score              \u2503
+\u2503 Compare models across thresholds    \u2503 AUC-ROC               \u2503
+```
+
+### 30-Second Interview Answer
 > F1 Score is the harmonic mean of Precision and Recall.
-> It is the best metric when data is imbalanced and both metrics matter equally.
-> A high F1 Score means the model is good at both finding positives and being accurate about them.
+> It's the best single metric when the dataset is imbalanced and both types of errors matter.
+> A high F1 means the model is both precise (low false alarms) and has high recall (catches real positives).
 
-**Simple Rule:**
-```
-Use Accuracy  → when classes are balanced
-Use Recall    → when missing positives is dangerous (healthcare)
-Use Precision → when false alarms are costly (spam filter)
-Use F1        → when you need balance between both on imbalanced data
-```
-
-**One-Line Revision:**
-> F1 = balance of Precision and Recall. Best metric for imbalanced datasets.
+### One-Line Revision
+> F1 = harmonic mean of Precision and Recall. Best for imbalanced datasets.
 
 ---
 
 ## 13. ROC Curve & AUC
 
-**Easy Definition:**
-- **ROC Curve** (Receiver Operating Characteristic): A plot of **Recall (True Positive Rate)** vs **False Positive Rate** at every possible threshold.
-- **AUC** (Area Under the Curve): A single number summarising the ROC curve. Higher = better model.
+### Definition
+- **ROC Curve** (Receiver Operating Characteristic Curve): A plot of **True Positive Rate (Recall)** on Y-axis vs **False Positive Rate (FPR)** on X-axis, drawn at **every possible classification threshold** (0 to 1)
+- **AUC** (Area Under the ROC Curve): A single scalar value summarizing the overall ROC curve performance. Higher = better discriminating model
 
-**What AUC means:**
-| AUC | Interpretation |
+```
+True Positive Rate = TP / (TP + FN) = Recall
+False Positive Rate = FP / (FP + TN)
+```
+
+### What AUC Values Mean
+| AUC Value | Interpretation |
 |---|---|
-| 1.0 | Perfect model |
-| 0.9+ | Excellent |
-| 0.7–0.9 | Good |
-| 0.5 | Random guessing (no better than a coin flip) |
-| < 0.5 | Worse than random |
+| **1.0** | Perfect model \u2014 separates all positives from negatives |
+| **0.9 \u2013 1.0** | Excellent |
+| **0.7 \u2013 0.9** | Good \u2014 acceptable for most use cases |
+| **0.5** | Random guessing \u2014 no better than a coin flip |
+| **< 0.5** | Worse than random (model is inverted) |
 
-**Why it is used:**
-- Compare two models without fixing a threshold — the model with higher AUC is generally better
-- Works well for imbalanced datasets
-- Shows the tradeoff between catching positives (recall) and producing false alarms (FPR)
+### Why Use ROC-AUC?
+- **Threshold-independent:** Evaluates model performance across all possible thresholds, not just at 0.5
+- **Model comparison:** Pick the model with highest AUC without worrying about threshold selection
+- **Works on imbalanced data:** Better than accuracy for unequal class distributions
+- **Interpretable:** AUC = probability that the model ranks a random positive higher than a random negative
 
-**30-Second Interview Answer:**
-> The ROC curve plots True Positive Rate vs False Positive Rate at every threshold.
-> AUC summarises this curve into one number — a model with AUC 0.95 is much better than one with 0.70.
-> We use it to compare models and select the best threshold for deployment.
+### 30-Second Interview Answer
+> The ROC curve plots True Positive Rate vs False Positive Rate at every classification threshold.
+> AUC summarises this into one number: a model with AUC 0.95 dramatically outperforms one with AUC 0.70.
+> We use AUC to compare models in a threshold-independent way and for model selection on imbalanced datasets.
 
-**One-Line Revision:**
-> ROC = tradeoff curve. AUC = area under it. Closer to 1.0 = better model.
+### One-Line Revision
+> ROC = performance curve across thresholds. AUC = area under it. Higher AUC = better classifier.
 
 ---
 
-## 14. MSE, RMSE, MAE — Regression Metrics
+## 14. MSE, RMSE, MAE, R\u00b2 \u2014 Regression Metrics
 
-**Used for Regression problems** (predicting a number).
+**Purpose:** Measure how close predicted values are to actual values in regression problems.
 
-| Metric | Formula | Meaning |
-|---|---|---|
-| **MAE** (Mean Absolute Error) | avg(│actual − predicted│) | Average absolute error. Easy to interpret. |
-| **MSE** (Mean Squared Error) | avg((actual − predicted)²) | Penalises large errors heavily. |
-| **RMSE** (Root MSE) | √MSE | Same unit as target variable. Most used. |
+### The Three Main Error Metrics
 
-**When to use which:**
-- **MAE** — when outliers exist and you don't want to penalise them heavily
-- **RMSE** — when large errors are especially bad (medical dosage, financial loss)
-- **MSE** — mostly used inside models for optimisation (gradient descent minimises MSE)
+| Metric | Formula | Units | Key Property |
+|---|---|---|---|
+| **MAE** (Mean Absolute Error) | avg(\|actual \u2212 predicted\|) | Same as target | Treats all errors equally, robust to outliers |
+| **MSE** (Mean Squared Error) | avg((actual \u2212 predicted)\u00b2) | Target\u00b2 (squared) | Penalises large errors heavily |
+| **RMSE** (Root Mean Squared Error) | \u221aMSE | Same as target | Interpretable unit + penalises large errors |
 
-**Example:**
+**Numerical Example:**
 ```
 Actual:    [100, 200, 300]
 Predicted: [110, 195, 320]
 Errors:    [ 10,   5,  20]
 
 MAE  = (10 + 5 + 20) / 3 = 11.67
-MSE  = (100 + 25 + 400) / 3 = 175
-RMSE = √175 = 13.23
+MSE  = (10\u00b2 + 5\u00b2 + 20\u00b2) / 3 = (100 + 25 + 400) / 3 = 175.0
+RMSE = \u221a175 = 13.23
 ```
 
-**One-Line Revision:**
-> MAE = average error. RMSE = same as target units, penalises big errors. Use RMSE as default.
+### When to Use Which
+| Situation | Metric | Why |
+|---|---|---|
+| Outliers present and you want robustness | **MAE** | Not sensitive to large errors |
+| Large errors are very costly (medical, financial) | **RMSE** | Penalises big errors more heavily |
+| Internal model optimisation (loss function) | **MSE** | Differentiable, gradient-friendly |
+| Want to explain % variance explained | **R\u00b2** | Tells how well model explains the data |
+
+### R\u00b2 Score (Coefficient of Determination)
+```
+R\u00b2 = 1 \u2212 (MSE of model / MSE of naive mean predictor)
+
+Range: \u2212\u221e to 1.0
+  R\u00b2 = 1.0  \u2192 Perfect predictions (model explains all variance)
+  R\u00b2 = 0.0  \u2192 Model is no better than just predicting the mean
+  R\u00b2 < 0.0  \u2192 Model is worse than predicting the mean (very bad)
+```
+
+> **Interpretation:** R\u00b2 = 0.85 means the model explains 85% of the variance in the target variable.
+
+### 30-Second Interview Answer
+> For regression, we use MAE, MSE, and RMSE to measure prediction error.
+> MAE gives the average absolute error and is robust to outliers.
+> RMSE is in the same units as the target variable and penalises large errors more \u2014 it's the most commonly used.
+> R\u00b2 tells us what percentage of variance in the target the model explains.
+
+### One-Line Revision
+> MAE = average absolute error. RMSE = penalises big errors, same unit as target. R\u00b2 = % variance explained.
 
 ---
 
 ## 15. Bias-Variance Tradeoff & Regularization
 
-### Bias-Variance Tradeoff
+### Definition
+The Bias-Variance Tradeoff describes the fundamental tension between two types of model error:
+- **Bias** = error from wrong assumptions (model too simple)
+- **Variance** = error from sensitivity to small fluctuations in training data (model too complex)
 
-| Term | Meaning | Symptom | Cause |
-|---|---|---|---|
-| **High Bias** | Model too simple, can't capture patterns | Underfitting — bad on train AND test | Model too simple (Linear Regression on complex data) |
-| **High Variance** | Model too complex, memorises noise | Overfitting — great on train, bad on test | Deep tree, too many features, too little data |
-| **Sweet spot** | Just right complexity | Good on both train and test | Right model + regularization |
+**Total Error = Bias² + Variance + Irreducible Noise**
+
+### Bias vs Variance \u2014 Full Comparison
+
+| | High Bias | High Variance |
+|---|---|---|
+| **Also called** | Underfitting | Overfitting |
+| **Train performance** | Poor | Excellent |
+| **Test performance** | Poor | Poor |
+| **Model complexity** | Too simple | Too complex |
+| **Cause** | Linear model on complex data, too few features | Deep tree, too many features, too little data |
+| **Symptom** | Train: 65%, Test: 63% (both bad) | Train: 98%, Test: 67% (big gap) |
+| **Fix** | More complex model, more features, more epochs | More data, simpler model, regularization |
 
 ```
 Error
-│              Total Error
-│    ╲         ╱
-│      ╲      ╱
-│        ●←── Sweet spot (Bias²+Variance minimised)
-│       Variance
-│  Bias²
-└──────────────────────── Model Complexity
+\u2502     High Bias          High Variance
+\u2502   (Underfitting)      (Overfitting)
+\u2502    \u2572                    \u2571
+\u2502      \u2572    Total Error  \u2571
+\u2502        \u25cf\u2190\u2500\u2500 Sweet Spot
+\u2502   Bias\u00b2       Variance
+\u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 Model Complexity
 ```
 
-**30-Second Interview Answer:**
-> High bias means the model is too simple — it underfits and can't capture the true pattern.
-> High variance means the model is too complex — it overfits and memorises noise.
-> Good models balance both. Regularization is the main tool to control variance.
+### 30-Second Interview Answer
+> High bias means the model is too simple \u2014 it underfits and fails to capture the true pattern in data.
+> High variance means the model is too complex \u2014 it memorises training noise and fails to generalise.
+> The goal is to find the sweet spot. Regularization is the primary tool to reduce variance (prevent overfitting).
 
-### Overfitting — Causes, Symptoms, Fixes
-- **Cause:** Model too complex, too many features, too little data
-- **Symptom:** Train accuracy 98%, Test accuracy 72%
-- **Fixes:** More data, simpler model, regularization (L1/L2), dropout (neural nets), cross-validation, pruning (trees)
+---
 
-### Underfitting — Causes, Symptoms, Fixes
-- **Cause:** Model too simple, too few features, too little training
-- **Symptom:** Train accuracy 65%, Test accuracy 64% (both bad)
-- **Fixes:** More complex model, more features, more training epochs, remove regularization
+### Regularization
+
+**Definition:** Regularization is a technique that **adds a penalty on large model weights** to the loss function during training. This discourages the model from becoming too complex and overfitting.
+
+**Core idea:** Loss = Original Loss + \u03bb \u00d7 Penalty Term (where \u03bb controls penalty strength)
+
+---
 
 ### L1 Regularization (Lasso)
-- Adds sum of **absolute values** of weights to the loss function
-- Effect: **Shrinks some weights all the way to zero** → performs automatic feature selection
-- Use when: you have many features and suspect many are irrelevant
-- **Memory trick:** L**1** = **L**asso = **L**eaves some weights = **0** (zeros out features)
+
+- **Penalty:** Sum of **absolute values** of weights: `\u03bb \u00d7 \u03a3|w|`
+- **Effect:** Shrinks some weights completely **to zero** \u2192 automatic feature selection
+- **Result:** Sparse model (only important features kept)
+- **Best for:** When you have many features and suspect many are irrelevant (high-dimensional data)
+- **Memory trick:** L**1** = **L**asso = **L**eaves some weights = **0**
+
+---
 
 ### L2 Regularization (Ridge)
-- Adds sum of **squared values** of weights to the loss function
-- Effect: **Shrinks all weights toward zero but rarely to exactly zero** — keeps all features
-- Use when: you want to reduce model complexity but keep all features contributing
+
+- **Penalty:** Sum of **squared values** of weights: `\u03bb \u00d7 \u03a3w\u00b2`
+- **Effect:** Shrinks all weights toward zero, but **never exactly to zero** \u2014 all features kept
+- **Result:** All features contribute (with smaller weights)
+- **Best for:** When all features are somewhat relevant; prevents any one feature from dominating
 - **Memory trick:** L**2** = **R**idge = **R**etains all features (just smaller weights)
 
-| | L1 (Lasso) | L2 (Ridge) |
+---
+
+### L1 vs L2 \u2014 Comparison Table
+
+| Aspect | L1 (Lasso) | L2 (Ridge) |
 |---|---|---|
-| **Weight penalty** | Sum of |w| | Sum of w² |
-| **Feature selection** | ✅ Yes (zeros out features) | ❌ No (all features kept) |
-| **Best for** | Sparse data, many irrelevant features | All features are somewhat relevant |
+| **Penalty term** | \u03bb \u00d7 \u03a3\|w\| (sum of absolute values) | \u03bb \u00d7 \u03a3w\u00b2 (sum of squared values) |
+| **Effect on weights** | Zeros out irrelevant weights | Shrinks all weights toward zero |
+| **Feature selection** | \u2705 Yes \u2014 automatic | \u274c No \u2014 keeps all features |
+| **Resulting model** | Sparse (fewer features) | Dense (all features, smaller weights) |
+| **Best for** | Many irrelevant features | All features somewhat relevant |
+| **Sensitivity to outliers** | More robust | Less robust |
 
-### Dropout (Neural Networks)
-- Randomly sets a fraction of neurons to **zero** during each training step
-- Forces the network to not rely on any single neuron — learns more robust features
-- Only used during training. At inference, all neurons are active.
-- **Typical dropout rate:** 0.2–0.5 (20–50% of neurons dropped randomly per batch)
+> **Elastic Net** = L1 + L2 combined. Best of both \u2014 can do feature selection while keeping model stability.
 
-**One-Line Revision:**
-> L1 = zero out features (Lasso). L2 = shrink all weights (Ridge). Dropout = randomly deactivate neurons during training.
+---
+
+### Dropout (Neural Networks only)
+
+- **What:** Randomly deactivates (sets to zero) a fraction of neurons during **each training step**
+- **Why:** Prevents neurons from co-adapting \u2014 forces network to learn redundant, robust representations
+- **When:** Only during **training**. At inference (prediction time), all neurons are active (scaled by dropout rate)
+- **Rate:** Typically 0.2\u20130.5 (20\u201350% of neurons dropped per step)
+- **Effect:** Equivalent to training an ensemble of many different sub-networks
+
+### One-Line Revision
+> Bias = model too simple (underfits). Variance = model too complex (overfits). L1 zeros features (Lasso). L2 shrinks weights (Ridge). Dropout = deactivate random neurons during training.
 
 ---
 
