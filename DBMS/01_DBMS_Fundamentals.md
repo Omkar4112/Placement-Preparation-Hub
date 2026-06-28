@@ -378,7 +378,8 @@ A) External Level
 B) Conceptual Level
 C) Internal Level
 D) Logical Level
-> **Answer: B) Conceptual Level.** (Physical data independence is the ability to change the Internal schema without changing the Conceptual schema).
+> **Answer: B) Conceptual Level.**
+> Physical Data Independence is the ability to change the **Internal schema** (physical storage) without requiring changes to the **Conceptual schema**. The Conceptual Level acts as the shield — it remains unaffected when storage details change. This independence is achieved through the **Conceptual/Internal mapping layer**. Note: Logical Data Independence (Q5 above) is the ability to change the Conceptual schema without affecting the External/user level.
 
 **Q2. Which of the following is NOT a DML command?**
 A) INSERT
@@ -466,29 +467,3 @@ D) An error is thrown
     * *Answer:* Start with X⁺ = X. Repeatedly apply FDs: if the left-hand side of any FD is a subset of X⁺, add the right-hand side to X⁺. Continue until no more attributes can be added. The result X⁺ is the closure.
 
 
-
-**Q4. Can a Foreign Key accept NULL values?**
-A) Yes, always.
-B) No, never.
-C) Yes, unless a NOT NULL constraint is explicitly applied.
-D) Only if the Primary Key it references is also NULL.
-> **Answer: C.** (Foreign keys can be NULL).
-
-**Q5. The ability to modify the conceptual schema without altering the external schema is called:**
-A) Physical Data Independence
-B) Logical Data Independence
-C) Architecture Independence
-D) View Independence
-> **Answer: B) Logical Data Independence.**
-
-## 🎤 Top 5 Interview Questions
-1. **Explain the difference between DELETE, TRUNCATE, and DROP.**
-   * *Answer:* Mention DML vs DDL, ability to Rollback, speed, and whether the table structure remains.
-2. **What is the difference between Logical and Physical Data Independence?**
-   * *Answer:* Logical allows changing the conceptual schema (adding columns) without affecting external views. Physical allows changing storage structures (like adding an SSD or changing an index) without affecting the conceptual schema.
-3. **What is a Foreign Key? Can a table have multiple Foreign Keys?**
-   * *Answer:* Yes, a table can have multiple foreign keys pointing to different tables. It establishes a relationship between two tables.
-4. **Why do we need a Candidate Key if we already have a Primary Key?**
-   * *Answer:* A table might have multiple columns that uniquely identify a row (e.g., Email, SSN, Employee_ID). All of these are Candidate Keys. The DBA chooses one to be the Primary Key. The rest are Alternate Keys.
-5. **What happens to the Foreign Key data if the Primary Key record is deleted?**
-   * *Answer:* It depends on the constraint. It could block the deletion (`RESTRICT`), delete the foreign key records too (`CASCADE`), or set the foreign key to NULL (`SET NULL`).

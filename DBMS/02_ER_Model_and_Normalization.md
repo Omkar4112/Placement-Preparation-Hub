@@ -395,7 +395,12 @@ A) 1NF
 B) 2NF
 C) 3NF
 D) Unnormalized
-> **Answer: A) 1NF.** (It violates 2NF because EmpName depends only on EmpID, which is a partial dependency).
+> **Answer: A) 1NF.**
+> This table violates 2NF because of **two** partial dependencies:
+> - `EmpID → EmpName` (EmpName depends only on part of the composite PK)
+> - `ProjectID → ProjectName` (ProjectName depends only on part of the composite PK)
+>
+> Since non-prime attributes depend on only a *part* of the composite Primary Key `{EmpID, ProjectID}`, the table has partial dependencies and therefore **cannot be in 2NF**. Its highest achieved normal form is **1NF** (assuming all attributes are atomic).
 
 **Q5. For a relation in BCNF, every functional dependency X -> Y implies that:**
 A) Y is a prime attribute
