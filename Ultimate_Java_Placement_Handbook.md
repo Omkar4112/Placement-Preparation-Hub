@@ -277,7 +277,10 @@ To provide a secure, controlled, and managed environment for Java applications, 
 ### 3. Internal Working
 1. **Class Loader**: Loads `.class` files. Consists of Bootstrap, Extension, and Application class loaders.
 2. **Runtime Data Areas**: Memory is divided into 5 regions (Method Area, Heap, Stack, PC Register, Native Method Stack).
-3. **Execution Engine**: Executes the bytecode utilizing the Interpreter, JIT Compiler, and Garbage Collector.
+3. **Execution Engine**: Executes the bytecode utilizing the following components:
+   - **Interpreter**: Reads bytecode and executes it line by line. Starts execution quickly but is slower for repeated code. (Flow: `Bytecode → Interpreter → Execution`)
+   - **JIT (Just-In-Time Compiler)**: Works with the Interpreter. Detects frequently executed code ("hot spots") and compiles that bytecode into native machine code, making execution much faster. (Flow: `Bytecode → JIT → Machine Code → Execution`)
+   - **Garbage Collector (GC)**: Automatically removes unused objects from Heap memory, prevents memory leaks, and frees memory for new objects.
 
 ### 4. Architecture
 ```text
