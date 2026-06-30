@@ -84,11 +84,29 @@ Java was created to solve the platform dependency issue present in C/C++. Develo
 Unlike C++, which compiles directly to machine code, Java compiles code (`.java`) into an intermediate, platform-independent format called **Bytecode** (`.class`). When the program is executed, the JVM (Java Virtual Machine) on the specific host operating system translates this bytecode into machine-specific native code.
 
 ### 4. Architecture
+```text
+Java Code (.java)
+       ↓
+Compiler (javac)
+       ↓
+Bytecode (.class)
+       ↓
+JVM + JIT Compiler
+       ↓
+Machine Code
+       ↓
+Execution
+```
+
 ```mermaid
 flowchart LR
-    A[Source Code .java] -- javac --> B[Bytecode .class]
-    B -- JVM Interprets/JIT --> C[Machine Code 0101]
-    C --> D[Hardware/OS]
+    classDef file fill:#f9f9f9,stroke:#333,stroke-width:2px;
+    classDef process fill:#e1f5fe,stroke:#0288d1,stroke-width:2px,color:#000;
+    classDef hardware fill:#e8f5e9,stroke:#388e3c,stroke-width:2px,color:#000;
+
+    A[📄 Source Code .java]:::file -- javac --> B[📄 Bytecode .class]:::file
+    B -- JVM Interprets/JIT --> C[⚙️ Machine Code]:::process
+    C --> D[🖥️ Hardware/OS]:::hardware
 ```
 
 ### 5. Syntax
@@ -172,15 +190,23 @@ When you hit 'Run', the compiler `javac` parses the Java code. If it passes synt
 ### 4. Architecture
 ```mermaid
 flowchart TB
-    subgraph JDK ["JDK (Java Development Kit)"]
+    classDef jdk fill:#fff3e0,stroke:#e65100,stroke-width:2px,color:#000;
+    classDef jre fill:#e3f2fd,stroke:#1565c0,stroke-width:2px,color:#000;
+    classDef jvm fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px,color:#000;
+    classDef item fill:#ffffff,stroke:#757575,stroke-width:1px,color:#000;
+
+    subgraph JDK ["📦 JDK (Java Development Kit)"]
         direction TB
-        subgraph JRE ["JRE (Java Runtime Environment)"]
+        Tools["🛠️ Development Tools (javac, java, jdb)"]:::item
+        subgraph JRE ["⚙️ JRE (Java Runtime Environment)"]
             direction TB
-            JVM["JVM (Java Virtual Machine)"]
-            Libs["Core Class Libraries"]
+            JVM["🧠 JVM (Java Virtual Machine)"]:::jvm
+            Libs["📚 Core Class Libraries"]:::item
         end
-        Tools["Development Tools (javac, java, jar, etc.)"]
     end
+    
+    style JDK fill:#fff3e0,stroke:#e65100,stroke-width:2px;
+    style JRE fill:#e3f2fd,stroke:#1565c0,stroke-width:2px;
 ```
 
 ### 5. Syntax
@@ -255,18 +281,33 @@ To provide a secure, controlled, and managed environment for Java applications, 
 
 ### 4. Architecture
 ```mermaid
-graph TD
-    A[Class Files] --> B[Class Loader Subsystem]
-    B --> C[Runtime Data Areas]
-    C --> D[Method Area]
-    C --> E[Heap Area]
-    C --> F[Stack Area]
-    C --> G[PC Registers]
-    C --> H[Native Method Stack]
-    C --> I[Execution Engine]
-    I --> J[Interpreter]
-    I --> K[JIT Compiler]
-    I --> L[Garbage Collector]
+flowchart TD
+    classDef main fill:#e3f2fd,stroke:#1565c0,stroke-width:2px,color:#000;
+    classDef sub fill:#ffffff,stroke:#757575,stroke-width:1px,color:#000;
+    
+    A[📄 Class Files] -->|Loaded by| B(⚙️ Class Loader Subsystem):::main
+    
+    subgraph JVM [🧠 JVM Architecture]
+        B --> C{Runtime Data Areas}:::main
+        
+        subgraph Memory [💾 Memory Areas]
+            direction LR
+            C --> D[Method Area]:::sub
+            C --> E[Heap Area]:::sub
+            C --> F[Stack Area]:::sub
+            C --> G[PC Registers]:::sub
+            C --> H[Native Method Stack]:::sub
+        end
+        
+        C --> I(🚀 Execution Engine):::main
+        
+        subgraph Exec [⚡ Execution Engine Components]
+            direction LR
+            I --> J[Interpreter]:::sub
+            I --> K[JIT Compiler]:::sub
+            I --> L[Garbage Collector]:::sub
+        end
+    end
 ```
 
 ### 5. Syntax (Conceptual mapping)
@@ -347,15 +388,22 @@ Primitive types (like `int`, `double`) hold their values directly in the Stack (
 
 ### 4. Architecture
 ```mermaid
-graph TD
-    A[Data Types] --> B[Primitive]
-    A --> C[Non-Primitive / Reference]
-    B --> D[Boolean: boolean]
-    B --> E[Numeric]
-    E --> F[Character: char]
-    E --> G[Integral: byte, short, int, long]
-    E --> H[Floating-point: float, double]
-    C --> I[String, Arrays, Classes, Interfaces]
+flowchart TD
+    classDef root fill:#34495e,stroke:#2c3e50,color:#fff,stroke-width:2px;
+    classDef cat fill:#3498db,stroke:#2980b9,color:#fff,stroke-width:2px;
+    classDef leaf fill:#ecf0f1,stroke:#bdc3c7,color:#000,stroke-width:1px;
+
+    A[📦 Java Data Types]:::root --> B[🧱 Primitive]:::cat
+    A --> C[🔗 Non-Primitive / Reference]:::cat
+    
+    B --> D[Boolean<br>boolean]:::leaf
+    B --> E[Numeric]:::cat
+    
+    E --> F[Character<br>char]:::leaf
+    E --> G[Integral<br>byte, short, int, long]:::leaf
+    E --> H[Floating-point<br>float, double]:::leaf
+    
+    C --> I[String, Arrays, Classes, Interfaces]:::leaf
 ```
 
 ### 5. Syntax
@@ -524,12 +572,17 @@ Applications must be interactive. IO streams allow programs to accept dynamic da
 
 ### 4. Architecture
 ```mermaid
-graph TD
-    A[System.in - InputStream] --> B[Scanner]
-    A --> C[InputStreamReader]
-    C --> D[BufferedReader]
-    B --> E[Parsed Tokens int, double]
-    D --> F[String Lines]
+flowchart TD
+    classDef input fill:#e8f5e9,stroke:#2e7d32,color:#000,stroke-width:2px;
+    classDef process fill:#fff3e0,stroke:#e65100,color:#000,stroke-width:2px;
+    classDef output fill:#e3f2fd,stroke:#1565c0,color:#000,stroke-width:2px;
+
+    A[⌨️ System.in<br>InputStream]:::input -->|Reads directly| B(🔍 Scanner):::process
+    A -->|Wraps byte stream| C(🔄 InputStreamReader):::process
+    C -->|Buffers characters| D(📥 BufferedReader):::process
+    
+    B -->|Provides| E[🔢 Parsed Tokens<br>int, double]:::output
+    D -->|Provides| F[📝 String Lines]:::output
 ```
 
 ### 5. Syntax
@@ -622,13 +675,18 @@ At the bytecode level, control flow translates to `goto` and conditional branch 
 
 ### 4. Architecture
 ```mermaid
-graph TD
-    A[Control Flow] --> B[Conditional]
-    A --> C[Iteration / Loops]
-    A --> D[Jump]
-    B --> E[if, if-else, switch]
-    C --> F[for, while, do-while]
-    D --> G[break, continue, return]
+flowchart TD
+    classDef root fill:#673ab7,stroke:#512da8,color:#fff,stroke-width:2px;
+    classDef cat fill:#00bcd4,stroke:#0097a7,color:#fff,stroke-width:2px;
+    classDef leaf fill:#e0f7fa,stroke:#b2ebf2,color:#000,stroke-width:1px;
+
+    A[🔀 Control Flow]:::root --> B[🤔 Conditional]:::cat
+    A --> C[🔁 Iteration / Loops]:::cat
+    A --> D[⏭️ Jump]:::cat
+    
+    B --> E[if, if-else, switch]:::leaf
+    C --> F[for, while, do-while]:::leaf
+    D --> G[break, continue, return]:::leaf
 ```
 
 ### 5. Syntax
@@ -724,15 +782,24 @@ When you write `String s = "Hello";`, the JVM checks the String Pool. If `"Hello
 
 ### 4. Architecture
 ```mermaid
-graph TD
-    A[Heap Memory] --> B[String Constant Pool]
-    A --> C[Regular Heap Objects]
-    B --> D["&quot;Hello&quot; - shared"]
-    C --> E["new String - separate object"]
-    F["s1 = &quot;Hello&quot;"] --> D
-    G["s2 = &quot;Hello&quot;"] --> D
-    H["s3 = new String(&quot;Hello&quot;)"] --> E
-    E -.->|intern| D
+flowchart TD
+    classDef memory fill:#e8eaf6,stroke:#3f51b5,color:#000,stroke-width:2px;
+    classDef pool fill:#c8e6c9,stroke:#388e3c,color:#000,stroke-width:2px;
+    classDef object fill:#ffccbc,stroke:#d84315,color:#000,stroke-width:1px;
+    classDef ref fill:#fff,stroke:#9e9e9e,color:#000,stroke-width:1px,stroke-dasharray: 5 5;
+
+    subgraph Heap [💾 Heap Memory]
+        subgraph SCP [🏊 String Constant Pool]
+            D["&quot;Hello&quot;<br>(Shared Object)"]:::pool
+        end
+        C[Regular Heap Objects]:::memory --> E["new String(&quot;Hello&quot;)<br>(Separate Object)"]:::object
+    end
+    
+    F["s1 = &quot;Hello&quot;"]:::ref --> D
+    G["s2 = &quot;Hello&quot;"]:::ref --> D
+    H["s3 = new String(&quot;Hello&quot;)"]:::ref --> E
+    
+    E -.->|intern()| D
 ```
 
 ### 5. Syntax
