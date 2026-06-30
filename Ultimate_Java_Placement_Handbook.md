@@ -622,10 +622,54 @@ Java provides multiple ways to read input from the user/files and write output. 
 Applications must be interactive. IO streams allow programs to accept dynamic data rather than hardcoding values. `Scanner` is for ease of use (parsing primitives), while `BufferedReader` is for high performance (reading chunks of data).
 
 ### 3. Internal Working
-- **Scanner**: Parses underlying input streams using regular expressions, tokenizing input by whitespace.
-- **BufferedReader**: Reads a large chunk of characters from the underlying `InputStreamReader` into an internal buffer array, reducing costly physical I/O operations.
 
-### 4. Architecture
+#### Scanner
+- Wraps `System.in` (or another input source).
+- Uses regular expressions (Regex) to split input into tokens.
+- Reads input token by token (`nextInt()`, `next()`, etc.).
+- Automatically converts tokens into required data types.
+```text
+System.in
+    ↓
+Scanner
+    ↓
+Regex Tokenization
+    ↓
+nextInt(), nextDouble(), next()
+```
+
+#### BufferedReader
+- Wraps an `InputStreamReader`.
+- Reads a large block of characters into an internal buffer.
+- Returns data from the buffer instead of performing frequent I/O operations.
+- Faster because physical I/O calls are minimized.
+```text
+System.in
+    ↓
+InputStreamReader
+    ↓
+BufferedReader
+    ↓
+Internal Character Buffer
+    ↓
+readLine()
+```
+
+### 4. Architecture Comparison
+
+**Scanner Architecture**
+```text
+Keyboard
+   ↓
+System.in
+   ↓
+Scanner
+   ↓
+Regex Parsing
+   ↓
+Application
+```
+
 ```mermaid
 flowchart TD
     classDef input fill:#e8f5e9,stroke:#2e7d32,color:#000,stroke-width:2px;
