@@ -430,12 +430,43 @@ flowchart TD
     C --> I[String, Arrays, Classes, Interfaces]:::leaf
 ```
 
-### 5. Syntax
+### 5. Syntax & Type Casting Details
+
+**Type Casting** = Converting one data type into another.
+
+#### 1. Widening Casting (Implicit)
+- **Small → Large**
+- Done automatically by Java
+- Flow: `byte → short → int → long → float → double`
 ```java
-int a = 10; // Primitive variable with integer literal
-String s = "Java"; // Reference variable with String literal
-double d = a; // Implicit casting (Widening)
-int b = (int) 3.14; // Explicit casting (Narrowing)
+int a = 10;
+double b = a;
+System.out.println(b); // 10.0
+```
+
+#### 2. Narrowing Casting (Explicit)
+- **Large → Small**
+- Must be done manually (fractional part is lost for floats to ints)
+```java
+double a = 10.75;
+int b = (int) a;
+System.out.println(b); // 10
+```
+
+#### 3. Object Type Casting
+
+**Upcasting (Automatic)**
+```java
+class Animal {}
+class Dog extends Animal {}
+
+Animal a = new Dog();
+```
+
+**Downcasting (Manual)**
+```java
+Animal a = new Dog();
+Dog d = (Dog) a;
 ```
 
 ### 6. Example
