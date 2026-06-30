@@ -280,6 +280,27 @@ To provide a secure, controlled, and managed environment for Java applications, 
 3. **Execution Engine**: Executes the bytecode utilizing the Interpreter, JIT Compiler, and Garbage Collector.
 
 ### 4. Architecture
+```text
+JVM Memory Areas
+
+JVM Memory
+├── Method Area
+│   ├─ Class metadata
+│   ├─ Method metadata
+│   ├─ Static variables
+│   └─ Constant Pool
+│
+├── Heap
+│   └─ Objects
+│
+├── Stack
+│   └─ Method calls, local variables
+│
+├── PC Register
+│
+└── Native Method Stack
+```
+
 ```mermaid
 flowchart TD
     classDef main fill:#e3f2fd,stroke:#1565c0,stroke-width:2px,color:#000;
@@ -350,7 +371,7 @@ Imagine a restaurant:
 > A: Stack stores local variables and method call frames; it is thread-safe and fast. Heap stores objects and instance variables; it is shared across all threads and is garbage collected.
 > 
 > **Q2: What is the Method Area?**
-> A: A shared memory space storing class structures, static variables, and constant pool.
+> A: Method Area is a shared JVM memory area that stores class metadata, method information, static variables, and the runtime constant pool. It is created when the JVM starts and shared among all threads.
 
 ### 12. Common Mistakes
 > [!CAUTION]
