@@ -1731,6 +1731,265 @@ public class Main {
 - Constructor = No return type + Same name as class + Auto-called on `new`.
 - `this()` = Constructor chaining (must be first line).
 
+### 16. Constructor Deep Dive Notes
+
+#### Definition
+A constructor is a special member of a class used to initialize objects.
+```java
+class Student {
+    Student() {
+        System.out.println("Object Created");
+    }
+}
+```
+
+#### Characteristics
+- Same name as class.
+- No return type.
+- Called automatically when object is created.
+- Can be overloaded.
+- Cannot be inherited.
+- Cannot be static, final, or abstract.
+
+#### Syntax
+```java
+class Student {
+    Student() {
+        // initialization code
+    }
+}
+
+// Object creation:
+Student s = new Student();
+```
+
+#### Types of Constructors
+**1. Default Constructor**  
+Provided by JVM if no constructor exists.
+```java
+class Student {
+}
+// JVM internally creates:
+Student() {
+    super();
+}
+```
+
+**2. No-Argument Constructor**  
+Created by programmer.
+```java
+class Student {
+    Student() {
+        System.out.println("No Argument Constructor");
+    }
+}
+```
+
+**3. Parameterized Constructor**  
+Accepts values during object creation.
+```java
+class Student {
+    String name;
+    int age;
+    
+    Student(String n, int a) {
+        name = n;
+        age = a;
+    }
+}
+Student s = new Student("Omkar", 20);
+```
+
+#### Constructor Overloading
+Multiple constructors with different parameters.
+```java
+class Student {
+    Student() {
+        System.out.println("Default");
+    }
+    Student(String name) {
+        System.out.println(name);
+    }
+    Student(String name, int age) {
+        System.out.println(name + " " + age);
+    }
+}
+```
+
+#### `this` Keyword in Constructor
+Used to refer current object.
+```java
+class Student {
+    String name;
+    Student(String name) {
+        this.name = name;
+    }
+}
+```
+**Why this?**  
+`name = name;` -> Both refer to local variable.  
+`this.name = name;` -> Left refers to instance variable, Right refers to local variable.
+
+#### Constructor Chaining
+Calling one constructor from another using `this()`.
+```java
+class Student {
+    Student() {
+        this("Omkar");
+        System.out.println("Default");
+    }
+    Student(String name) {
+        System.out.println(name);
+    }
+}
+// Output: Omkar, Default
+```
+**Rule**: `this()` must be first statement.
+
+#### `super()` Constructor
+Calls parent constructor.
+```java
+class Animal {
+    Animal() {
+        System.out.println("Animal");
+    }
+}
+class Dog extends Animal {
+    Dog() {
+        super();
+        System.out.println("Dog");
+    }
+}
+// Output: Animal, Dog
+```
+
+#### Constructor Execution Flow
+`Student s = new Student();`
+**Flow:**
+`new Student()` → Memory allocated in Heap → Instance variables initialized → Constructor invoked → Object ready
+
+#### Constructor vs Method
+| Constructor | Method |
+| --- | --- |
+| Initializes object | Performs operation |
+| Same name as class | Any valid name |
+| No return type | Has return type |
+| Called automatically | Called explicitly |
+| Runs once per object creation | Runs whenever called |
+
+#### Can Constructor be Private?
+Yes. Used in Singleton Pattern.
+```java
+class Demo {
+    private Demo() {
+        System.out.println("Private Constructor");
+    }
+}
+```
+
+#### Copy Constructor (Java Style)
+Java doesn't have built-in copy constructor like C++.
+```java
+class Student {
+    String name;
+    Student(Student s) {
+        this.name = s.name;
+    }
+}
+```
+
+#### Memory View
+`Student s = new Student("Omkar");`
+```text
+Stack                    Heap
+-----                    ------
+s  ------------------>  Student Object
+                         name = "Omkar"
+```
+
+#### Interview Questions
+- **Why constructor has no return type?** Because it is not a method; it is a special member used for object initialization.
+- **Can constructor be inherited?** No.
+- **Can constructor be overridden?** No.
+- **Can constructor be overloaded?** Yes.
+- **Can constructor be static?** No.
+- **Can constructor be private?** Yes.
+- **When is constructor called?** Automatically when object is created using new.
+
+---
+
+### 17. `this` Keyword Deep Dive
+`this` refers to the current object.
+
+**1. Access Instance Variables**
+```java
+class Student {
+    String name;
+    Student(String name) {
+        this.name = name; // this.name is instance, name is local
+    }
+}
+```
+
+**2. Call Current Class Method**
+```java
+class Student {
+    void display() {
+        System.out.println("Display");
+    }
+    void show() {
+        this.display();
+    }
+}
+```
+
+**3. Call Current Class Constructor**
+```java
+class Student {
+    Student() {
+        this("Omkar");
+        System.out.println("Default");
+    }
+    Student(String name) {
+        System.out.println(name);
+    }
+}
+// Rule: this() must be the first statement.
+```
+
+**4. Pass Current Object as Argument**
+```java
+class Student {
+    void display(Student s) {
+        System.out.println("Method Called");
+    }
+    void show() {
+        display(this);
+    }
+}
+```
+
+**5. Return Current Object**
+```java
+class Student {
+    Student getObject() {
+        return this;
+    }
+}
+// Used in method chaining.
+```
+
+**Memory Example**
+`Student s1 = new Student("Omkar");`
+```text
+Stack                Heap
+-----                ----------------
+s1  ------------->   Student Object
+                     name = "Omkar"
+                     this ───────────┘
+// this points to the current object itself
+```
+
 ---
 
 ## 5.2 Encapsulation and Abstraction
